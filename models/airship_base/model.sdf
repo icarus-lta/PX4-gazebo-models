@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Generic airship, SITL development model - SHARED BASE BODY.
+  ============================================================
+  Hull, gondola, tail and sensors only; NO propulsion. Spawn one of the
+  variant wrappers instead - they merge-include this base and add props:
+    airship       - Gondola-/Frame-Mounted Propulsion
+    airship_side  - Side-/Flank-Mounted Propulsion
+  Comments stay study-guide verbose until upstreaming.
+
+  GEOMETRY (origin at gondola bottom center = ground contact point)
+    hull:    ellipsoid, semi-axes 5.25 x 1.25 x 1.25 m
+             (10.5 m long, 2.5 m diameter), center at z = 2.05
+    gondola: box 1.2 x 0.8 x 0.8 m, center at z = 0.40
+    fins:    two thin crossed plates at the stern, VISUAL ONLY
+             (no collision: negligible volume, and aerodynamics will come
+             from plugins in a later increment, not from contacts)
+
+  MASS BUDGET (buoyancy-neutral by construction)
+    displaced volume V = 4/3*pi*5.25*1.25^2 + 1.2*0.8*0.8
+                       = 34.361 + 0.768 = 35.129 m^3
+    neutral mass = 1.225 kg/m^3 * 35.129 m^3 = 43.033 kg
+      hull (envelope + fins):  13.033 kg at z = 2.05
+      gondola (all systems):   29.900 kg at z = 0.40
+      2 propellers:           2x0.050 kg (added by the variant wrapper)
+
+  PROPULSION
+    None here. Each variant wrapper adds two propeller links (their
+    2x0.05 kg is reserved in the budget above). The mounting HEIGHT
+    relative to the CoM (0.900 m) sets the pitch coupling under thrust -
+    the design variable the two variants exist to compare.
+
+  THE PENDULUM (this increment's physics payoff)
+    center of mass (gondola variant, props at z = 0.40; the side variant
+    lands 4 mm higher)
+                    CoM = (13.033*2.05 + 30*0.40) / 43.033 = 0.900 m
+    center of volume CoV = (34.361*2.05 + 0.768*0.40) / 35.129 = 2.014 m
+    metacentric arm = CoV - CoM = 1.114 m
+    Buoyancy pulls UP at the CoV, weight DOWN at the CoM: tilt the ship
+    and the pair forms a righting couple ~ m*g*arm*sin(roll)
+      = 43.033 * 9.8 * 1.114 = 470 N*m per radian (small angles).
+    Undamped roll oscillation: T = 2*pi*sqrt(Ixx / 470)
+      = 2*pi*sqrt(36.1/470) = 1.74 s   <- hand prediction. MEASURED in
+    simulation: ~2.5 s. Discrepancy unresolved (suspect the hand model's
+    inertia reference vs the engine's); righting direction, restoring
+    magnitude scale and neutrality are the verified parts.
+
+  VERIFY (standalone, env sourced, GZ_IP=127.0.0.1)
+    spawn, then teleport to altitude: it should HOLD (neutral).
+    tilt it:  gz service -s /world/lta/set_pose ... roll ~0.35 rad
+      -> it swings back and oscillates around upright (measured ~2.5 s).
+    gz model -m airship - -link   (mind the space) shows mass 43.033 and
+    the inertia below; View -> Center of Mass shows the marker low,
+    inside the hull's lower half - the pendulum, visible.
+-->
+<sdf version="1.10">
+  <model name="airship_base">
+    <self_collide>false</self_collide>
+    <static>false</static>
+    <link name="base_link">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <!-- Combined CoM of hull + gondola (props carry their own 2x0.05 kg
+             in their own links; total stays 43.033 kg = neutral).
+             Low CoM + high CoV = pendulum stability. -->
+        <pose>0 0 0.901 0 0 0</pose>
+        <mass>42.933</mass>
+        <!-- Composite inertia about the CoM (parallel-axis by hand):
+             hull (solid ellipsoid): Ixx = m(b^2+c^2)/5           =  8.15
+                                     Iyy = Izz = m(a^2+b^2)/5     = 75.92
+               + hull offset dz = 2.05-0.90 = 1.15: m*dz^2        = 17.24 (to Ixx, Iyy)
+             gondola (box):          Ixx = m(y^2+z^2)/12          =  3.20
+                                     Iyy = Izz = m(x^2+z^2)/12    =  5.20
+               + gondola offset dz = -0.50: m*dz^2                =  7.50 (to Ixx, Iyy)
+             Totals: Ixx = 36.1, Iyy = 105.9, Izz = 81.1 kg m^2 -->
+        <inertia>
+          <ixx>36.1</ixx>
+          <iyy>105.9</iyy>
+          <izz>81.1</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+        <!-- HULL ADDED MASS: excluded (see the MODEL SCOPE note near the
+             end of this file). It was prototyped as SDF <fluid_added_mass>
+             (Li & Nahon 2007 prolate-spheroid values, about the CV:
+             diag(3.45, 36.2, 36.2, 0, 134.9, 134.9) kg / kg m^2), but
+             measurement showed the engine applies it to wrenches on this
+             link while forces from the propeller child links - the only
+             excitation path used here - get the plain rigid response.
+             A plant inconsistent between force paths is worse than a
+             rigid one, so it stays out. -->
+      </inertial>
+      <!-- HULL collision: the buoyancy volume (34.36 m^3) and the shape that
+           matters if the ship ever rolls fully over. -->
+      <collision name="hull_collision">
+        <pose>0 0 2.05 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>5.25 1.25 1.25</radii>
+          </ellipsoid>
+        </geometry>
+      </collision>
+      <!-- GONDOLA collision: the ground-contact shape (and 0.77 m^3 of
+           buoyancy volume, included in the mass budget). -->
+      <collision name="gondola_collision">
+        <pose>0 0 0.4 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.2 0.8 0.8</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.001</min_depth>
+              <max_vel>0</max_vel>
+            </ode>
+          </contact>
+          <friction>
+            <ode />
+          </friction>
+        </surface>
+      </collision>
+      <visual name="hull_visual">
+        <pose>0 0 2.05 0 0 0</pose>
+        <geometry>
+          <ellipsoid>
+            <radii>5.25 1.25 1.25</radii>
+          </ellipsoid>
+        </geometry>
+        <material>
+          <ambient>0.85 0.85 0.9 1</ambient>
+          <diffuse>0.85 0.85 0.9 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+        </material>
+      </visual>
+      <visual name="gondola_visual">
+        <pose>0 0 0.4 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.2 0.8 0.8</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.3 0.3 0.35 1</ambient>
+          <diffuse>0.3 0.3 0.35 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+        </material>
+      </visual>
+      <!-- Cruciform tail as two crossed plates, VISUAL ONLY (deliberate
+           inverse of the collision/visual lesson: geometry physics cannot
+           feel). Centered at x = -4.3, within the hull's tapering stern. -->
+      <visual name="fin_horizontal_visual">
+        <pose>-4.3 0 2.05 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0 3.6 0.04</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.6 0.2 0.2 1</ambient>
+          <diffuse>0.6 0.2 0.2 1</diffuse>
+        </material>
+      </visual>
+      <visual name="fin_vertical_visual">
+        <pose>-4.3 0 2.05 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0 0.04 3.6</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.6 0.2 0.2 1</ambient>
+          <diffuse>0.6 0.2 0.2 1</diffuse>
+        </material>
+      </visual>
+      <!-- ================== SENSORS ==================
+           Unchanged from the cube increment; all sit at the link origin,
+           i.e. the bottom of the gondola - where avionics live on a real
+           airship. Chain: gz sensor -> gz_bridge -> uORB -> EKF2. -->
+      <sensor name="air_pressure_sensor" type="air_pressure">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>50</update_rate>
+        <air_pressure>
+          <!-- Noise modeled after BMP390 -->
+          <pressure>
+            <noise type="gaussian">
+              <mean>0</mean>
+              <stddev>3</stddev>
+            </noise>
+          </pressure>
+        </air_pressure>
+      </sensor>
+      <sensor name="magnetometer_sensor" type="magnetometer">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>100</update_rate>
+        <magnetometer>
+          <!-- Same values as x500. Upstream caveats apply here too:
+               noise stddev is interpreted in tesla while the sensor
+               reports gauss (gz-sim units quirk, see gz-sim PR 2460);
+               intent per upstream: ~3 mgauss RMS, IIS2MDC-class. -->
+          <x>
+            <noise type="gaussian">
+              <stddev>0.0001</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <stddev>0.0001</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <stddev>0.0001</stddev>
+            </noise>
+          </z>
+        </magnetometer>
+      </sensor>
+      <sensor name="imu_sensor" type="imu">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>250</update_rate>
+        <imu>
+          <angular_velocity>
+            <!-- Noise modeled after IIM42653, 0.05 deg/s in rad/s -->
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.0008726646</stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.0008726646</stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.0008726646</stddev>
+              </noise>
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <!-- Noise modeled after IIM42653, 0.65/0.70 mg-rms in m/s^2 -->
+            <x>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.00637</stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.00637</stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.0</mean>
+                <stddev>0.00686</stddev>
+              </noise>
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+      <sensor name="navsat_sensor" type="navsat">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+      </sensor>
+    </link>
+    <!-- ============ MODEL SCOPE (indoor free-flight validation) ============
+         The simulated plant is exactly: rigid body + buoyancy + the two
+         thrusters added by a variant wrapper. Deliberately excluded, as
+         second-order for low-speed initial-response tests in still air:
+           - hull ADDED MASS (also blocked by an engine limitation;
+             note inside <inertial> above)
+           - hull DRAG. Coefficients were validated earlier (terminal
+             6.5 m/s at 16 N) and are kept for later outdoor scenarios;
+             re-enable via a gz-sim-hydrodynamics-system plugin with:
+             <xUabsU>-0.301</xUabsU> <yVabsV>-10.1</yVabsV>
+             <zWabsW>-10.1</zWabsW> <kPabsP>-0.5</kPabsP>
+             <mQabsQ>-80.0</mQabsQ> <nRabsR>-80.0</nRabsR>
+             <xU>-0.5</xU> <yV>-2.0</yV> <zW>-2.0</zW>
+             <kP>-15.0</kP> <mQ>-40.0</mQ> <nR>-40.0</nR>
+           - Munk moment, fin/gondola added mass, near-wall effects
+           - fin aerodynamics: no effect in still air; fins are
+             visual-only geometry -->
+    <!-- FRAME MAPPING to the validation datum (CV-origin, FRD axes):
+         this model's origin is the gondola bottom in gz world axes
+         (x forward, y LEFT, z UP). The center of volume CV sits at
+         (0, 0, 2.014) in model coordinates. Convert model -> CV-FRD by:
+           x_frd = x_gz,  y_frd = -y_gz,  z_frd = -(z_gz - 2.014)
+         (FRD: +x forward, +y starboard, +z down.) -->
+  </model>
+</sdf>

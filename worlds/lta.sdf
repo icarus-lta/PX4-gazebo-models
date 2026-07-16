@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lighter-than-air (LTA) development world - buoyant air for airships
+  ====================================================================
+  and other LTA vehicles. Named for the DOMAIN, not a vehicle, per the
+  underwater.sdf precedent (worlds are places; models are vehicles).
+  Derived from default.sdf; differences are marked with CHANGED/ADDED.
+  A world owns everything the vehicle cannot: time (physics step), the
+  planet (gravity, magnetic field, atmosphere, geographic origin), the
+  scenery (ground, light), and which extra physics systems are loaded.
+
+  RUN IT STANDALONE
+    source build/px4_sitl_default/rootfs/gz_env.sh
+    gz sim -r $PX4_GZ_WORLDS/lta.sdf
+  Note: the world NAME below is "lta", so all CLI paths use it:
+    /world/lta/create , /world/lta/wrench/persistent , ...
+-->
+<sdf version="1.9">
+  <world name="lta"><!-- CHANGED: was "default"; must match this filename -->
+    <!-- Lockstep heartbeat: 4 ms steps, 250 Hz, matching PX4's expectations. -->
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.8</gravity>
+    <!-- Earth's field in Zurich, Tesla, ENU components; feeds the magnetometer. -->
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <!-- Adiabatic pressure/temperature vs altitude; feeds the barometer.
+         (Sensor atmosphere only: it exerts NO forces. The force side of
+         the air is the Buoyancy system declared below.) -->
+    <atmosphere type="adiabatic"/>
+    <scene>
+      <grid>true</grid><!-- CHANGED: default.sdf says false. 1 m cells at the
+                            world origin, the coordinate reference we wanted.
+                            Too coarse for a 10.5 m vehicle? GUI plugin menu ->
+                            "Grid Config" resizes it live (e.g. cell size 5,
+                            count 100). -->
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+    <!-- GUI: same ownership rule as world plugins - declaring <gui> replaces
+         the ENTIRE default GUI plugin list, so this is the full stack from
+         underwater.sdf plus ComponentInspector and ViewAngle (top-down view
+         makes yaw tests readable). The camera starts 31 m out on the rear-
+         port quarter, framing the whole 10.5 m ship instead of default.sdf's
+         6 m close-up. To keep the drifting ship in view: select it and
+         re-click the View Angle top button (Follow works too, but snaps
+         to its own diagonal chase offset). -->
+    <gui fullscreen="false">
+      <plugin filename="MinimalScene" name="3D View">
+        <gz-gui>
+          <title>3D View</title>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <ambient_light>0.4 0.4 0.4</ambient_light>
+        <background_color>0.8 0.8 0.8</background_color>
+        <camera_pose>-22 -22 14 0 0.35 0.785</camera_pose>
+        <!-- Development default: start in the Orthographic view controller -
+             mouse control works anywhere (the orbit controller anchors to
+             the 3D point under the cursor and feels dead over empty sky),
+             and top-down angle readings are distortion-free. The toolbar
+             dropdown switches back to Orbit for perspective inspection.
+             Revisit before upstreaming: stock PX4 worlds start in orbit. -->
+        <view_controller>ortho</view_controller>
+        <camera_clip>
+          <near>0.25</near>
+          <far>25000</far>
+        </camera_clip>
+      </plugin>
+      <plugin filename="EntityContextMenuPlugin" name="Entity context menu">
+        <gz-gui>
+          <property key="state" type="string">floating</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="GzSceneManager" name="Scene Manager">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="InteractiveViewControl" name="Interactive view control">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="CameraTracking" name="Camera Tracking">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="MarkerManager" name="Marker manager">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="SelectEntities" name="Select Entities">
+        <gz-gui>
+          <anchors target="Select entities">
+            <line own="right" target="right"/>
+            <line own="top" target="top"/>
+          </anchors>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="VisualizationCapabilities" name="Visualization Capabilities">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin filename="Spawn" name="Spawn Entities">
+        <gz-gui>
+          <anchors target="Select entities">
+            <line own="right" target="right"/>
+            <line own="top" target="top"/>
+          </anchors>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+      <plugin name="World control" filename="WorldControl">
+        <gz-gui>
+          <title>World control</title>
+          <property type="bool" key="showTitleBar">0</property>
+          <property type="bool" key="resizable">0</property>
+          <property type="double" key="height">72</property>
+          <property type="double" key="width">121</property>
+          <property type="double" key="z">1</property>
+          <property type="string" key="state">floating</property>
+          <anchors target="3D View">
+            <line own="left" target="left"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
+        </gz-gui>
+        <play_pause>1</play_pause>
+        <step>1</step>
+        <start_paused>1</start_paused>
+      </plugin>
+      <plugin name="World stats" filename="WorldStats">
+        <gz-gui>
+          <title>World stats</title>
+          <property type="bool" key="showTitleBar">0</property>
+          <property type="bool" key="resizable">0</property>
+          <property type="double" key="height">110</property>
+          <property type="double" key="width">290</property>
+          <property type="double" key="z">1</property>
+          <property type="string" key="state">floating</property>
+          <anchors target="3D View">
+            <line own="right" target="right"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
+        </gz-gui>
+        <sim_time>1</sim_time>
+        <real_time>1</real_time>
+        <real_time_factor>1</real_time_factor>
+        <iterations>1</iterations>
+      </plugin>
+      <plugin name="Entity tree" filename="EntityTree"/>
+      <plugin name="Component inspector" filename="ComponentInspector"/>
+      <plugin name="View angle" filename="ViewAngle"/>
+    </gui>
+    <!-- PLUGIN POLICY (settled empirically; final rule):
+         A world that declares ANY <plugin> owns its ENTIRE system list -
+         gz-sim then injects nothing (no defaults, no server-config systems).
+         Therefore a custom-physics world must declare the full stack itself.
+         This mirrors worlds/underwater.sdf exactly, with one addition:
+         Magnetometer, because this model carries a gz magnetometer sensor
+         (the BlueROV instead uses PX4-side SENS_EN_MAGSIM). -->
+    <plugin name="gz::sim::systems::Physics" filename="gz-sim-physics-system"/>
+    <plugin name="gz::sim::systems::UserCommands" filename="gz-sim-user-commands-system"/>
+    <plugin name="gz::sim::systems::SceneBroadcaster" filename="gz-sim-scene-broadcaster-system"/>
+    <plugin name="gz::sim::systems::Contact" filename="gz-sim-contact-system"/>
+    <plugin name="gz::sim::systems::Imu" filename="gz-sim-imu-system"/>
+    <plugin name="gz::sim::systems::AirPressure" filename="gz-sim-air-pressure-system"/>
+    <plugin name="gz::sim::systems::AirSpeed" filename="gz-sim-air-speed-system"/>
+    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+    <plugin name="gz::sim::systems::NavSat" filename="gz-sim-navsat-system"/>
+    <plugin name="gz::sim::systems::ApplyLinkWrench" filename="gz-sim-apply-link-wrench-system"/>
+    <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <!-- ADDED in 3b: buoyancy. Archimedes on the COLLISION volume of enabled
+         links: F = fluid_density * displaced_volume * g, applied at the
+         center of volume. Air at sea level: 1.225 kg/m^3.
+         For the airship (hull + gondola collisions = 35.13 m^3): lift
+         supports exactly the 43.03 kg neutral mass declared by the model.
+         Same pattern as worlds/underwater.sdf, including the enable scoping:
+         PX4 spawns instances with a _0 suffix. -->
+    <plugin filename="gz-sim-buoyancy-system" name="gz::sim::systems::Buoyancy">
+      <uniform_fluid_density>1.225</uniform_fluid_density>
+      <enable>airship::base_link</enable>
+      <enable>airship_0::base_link</enable>
+      <enable>airship_side::base_link</enable>
+      <enable>airship_side_0::base_link</enable>
+    </plugin>
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>1 1</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+            <contact/>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>500 500</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material>
+        </visual>
+        <pose>0 0 0 0 -0 0</pose>
+      </link>
+      <pose>0 0 0 0 -0 0</pose>
+      <self_collide>false</self_collide>
+    </model>
+    <!-- Ground MARKERS, visual-only (no collision, no buoyancy enable):
+         orientation/position reference that works far outside the 20 m GUI
+         grid. gz axis-color convention: red stripe = +x, green stripe = +y;
+         the four 200x200 m quadrant tiles alternate two grays so every
+         quadrant boundary reads like a 200 m ruler line. Thin BOXES (not
+         planes) stacked 2 cm apart to avoid z-fighting with the ground. -->
+    <model name="ground_markers">
+      <static>true</static>
+      <link name="link">
+        <visual name="quadrant_pp">
+          <cast_shadows>false</cast_shadows>
+          <pose>100 100 0.01 0 0 0</pose>
+          <geometry><box><size>200 200 0.02</size></box></geometry>
+          <material>
+            <ambient>0.72 0.72 0.72 1</ambient>
+            <diffuse>0.72 0.72 0.72 1</diffuse>
+          </material>
+        </visual>
+        <visual name="quadrant_nn">
+          <cast_shadows>false</cast_shadows>
+          <pose>-100 -100 0.01 0 0 0</pose>
+          <geometry><box><size>200 200 0.02</size></box></geometry>
+          <material>
+            <ambient>0.72 0.72 0.72 1</ambient>
+            <diffuse>0.72 0.72 0.72 1</diffuse>
+          </material>
+        </visual>
+        <visual name="quadrant_pn">
+          <cast_shadows>false</cast_shadows>
+          <pose>100 -100 0.01 0 0 0</pose>
+          <geometry><box><size>200 200 0.02</size></box></geometry>
+          <material>
+            <ambient>0.6 0.6 0.62 1</ambient>
+            <diffuse>0.6 0.6 0.62 1</diffuse>
+          </material>
+        </visual>
+        <visual name="quadrant_np">
+          <cast_shadows>false</cast_shadows>
+          <pose>-100 100 0.01 0 0 0</pose>
+          <geometry><box><size>200 200 0.02</size></box></geometry>
+          <material>
+            <ambient>0.6 0.6 0.62 1</ambient>
+            <diffuse>0.6 0.6 0.62 1</diffuse>
+          </material>
+        </visual>
+        <visual name="axis_x_red">
+          <cast_shadows>false</cast_shadows>
+          <pose>0 0 0.03 0 0 0</pose>
+          <geometry><box><size>400 1.5 0.02</size></box></geometry>
+          <material>
+            <ambient>0.55 0.2 0.2 1</ambient>
+            <diffuse>0.55 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+        <visual name="axis_y_green">
+          <cast_shadows>false</cast_shadows>
+          <pose>0 0 0.03 0 0 0</pose>
+          <geometry><box><size>1.5 400 0.02</size></box></geometry>
+          <material>
+            <ambient>0.2 0.5 0.2 1</ambient>
+            <diffuse>0.2 0.5 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <light name="sunUTC" type="directional">
+      <pose>0 0 500 0 -0 0</pose>
+      <cast_shadows>true</cast_shadows>
+      <intensity>1</intensity>
+      <direction>0.001 0.625 -0.78</direction>
+      <diffuse>0.904 0.904 0.904 1</diffuse>
+      <specular>0.271 0.271 0.271 1</specular>
+      <attenuation>
+        <range>2000</range>
+        <linear>0</linear>
+        <constant>1</constant>
+        <quadratic>0</quadratic>
+      </attenuation>
+      <spot>
+        <inner_angle>0</inner_angle>
+        <outer_angle>0</outer_angle>
+        <falloff>0</falloff>
+      </spot>
+    </light>
+    <!-- Geographic origin: maps gz x/y/z to lat/lon/alt for the GNSS sensor.
+         Zurich, same as default.sdf, so EKF behavior is directly comparable. -->
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>47.397971057728974</latitude_deg>
+      <longitude_deg> 8.546163739800146</longitude_deg>
+      <elevation>0</elevation>
+    </spherical_coordinates>
+  </world>
+</sdf>
