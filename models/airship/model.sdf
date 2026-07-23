@@ -1,55 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Generic airship - vectored side propulsion (tilt-structure increment).
-  ======================================================================
-  Two propellers on a transverse rod whose axis passes through the
-  CENTER OF MASS (rod-through-CoG layout; the mounting rod is not
-  modeled). Each propeller pod vectors independently about the rod (y)
-  axis. This increment adds the tilt joints and their position
-  controllers; both controllers hold tilt = 0 (thrust forward) until
-  commanded, which reproduces the fixed-tilt geometry exactly.
-
-  TILT CONVENTION AND PLACEHOLDERS
-    Joint axis is 0 -1 0, so POSITIVE tilt rotates the thrust vector UP
-    (0 = forward, +90 deg = straight up, +-180 deg = reverse). Range is
-    currently UNLIMITED and the position controller is a soft PD -
-    both are placeholders pending the vehicle's tilt-range and
-    servo-rate spec; replace the joint limits and controller gains when
-    those numbers arrive.
-
-  THRUST GEOMETRY AND ITS SIGNATURE
-    Pods at z = 0.8125 = CoM height and x = 0 = CoM station: the thrust
-    moment arm about the CoM is zero at every tilt angle, so thrust
-    produces NO pitch response - by design. At tilt 0: forward cruise
-    and differential-thrust yaw (arms +-1.5 m -> -+27 N*m). Vectoring
-    adds Fz (collective tilt), roll (differential tilt), and the pure
-    yaw couple (0/180 deg opposition, zero net force).
-
-  DRIVE IT (standalone, env sourced, GZ_IP=127.0.0.1)
-    motors:
-      gz topic -t /airship/command/motor_speed -m gz.msgs.Actuators \
-        -p 'velocity: [200, 200]'          stop: -p 'velocity: [0, 0]'
-      (with a PX4 instance attached, drive via px4-actuator_test
-      instead - gz_bridge republishes this topic continuously and
-      overrides one-shot messages within a cycle)
-    tilts (radians, on the PX4-bridge servo topics; a PX4-spawned
-    instance is /model/airship_0/...):
-      gz topic -t /model/airship/servo_0 -m gz.msgs.Double \
-        -p 'data: 1.570796326794897'
-      gz topic -t /model/airship/servo_1 -m gz.msgs.Double \
-        -p 'data: 1.570796326794897'
-    tilts through PX4 (servo outputs 1/2; -1..1 spans -180..+180 deg,
-    so 0 = forward, +0.5 = 90 deg up, +-1 = reverse):
-      actuator_test set -s 1 -v 0.5 -t 10
-    Motor numbering matches the 2500 airframe: 0 = starboard, 1 = port.
-
-  Convention reminder: MulticopterMotorModel hardcodes thrust along the
-  rotor LINK's +Z and spins the joint about that Z, so each prop link is
-  pitched +90 deg (link Z -> body +X; written with pose degrees="true"
-  so the quarter-turn is EXACT - no truncated pi in the geometry) and
-  spin joints use axis 0 0 1.
-  Mass bookkeeping: pod 0.4 + prop 0.1 = 0.5 kg per side, reserved in
-  the base's budget, so the exact 49.000 kg neutral total holds.
+  Generic airship with vectored side propulsion: two propeller pods on a
+  transverse rod through the center of mass, so thrust produces no pitch
+  moment at any tilt angle. Each pod tilts about the rod via a
+  position-controlled joint driven from the PX4 servo bridge
+  (servo_0 = starboard, servo_1 = port; positive tilt = thrust up).
+  Tilt range and servo dynamics are placeholders pending the vehicle
+  specification. Prop links are pitched 90 deg so link +Z, the motor
+  plugin's thrust axis, points forward.
 -->
 <sdf version="1.10">
   <model name="airship">

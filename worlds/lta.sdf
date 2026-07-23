@@ -1,53 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Lighter-than-air (LTA) development world - buoyant air for airships
-  ====================================================================
-  and other LTA vehicles. Named for the DOMAIN, not a vehicle, per the
-  underwater.sdf precedent (worlds are places; models are vehicles).
-  Derived from default.sdf; differences are marked with CHANGED/ADDED.
-  A world owns everything the vehicle cannot: time (physics step), the
-  planet (gravity, magnetic field, atmosphere, geographic origin), the
-  scenery (ground, light), and which extra physics systems are loaded.
-
-  RUN IT STANDALONE
-    source build/px4_sitl_default/rootfs/gz_env.sh
-    gz sim -r $PX4_GZ_WORLDS/lta.sdf
-  Note: the world NAME below is "lta", so all CLI paths use it:
-    /world/lta/create , /world/lta/wrench/persistent , ...
+  Lighter-than-air development world: buoyant air for airships.
+  Standalone: source build/px4_sitl_default/rootfs/gz_env.sh && gz sim -r $PX4_GZ_WORLDS/lta.sdf
 -->
 <sdf version="1.9">
-  <world name="lta"><!-- CHANGED: was "default"; must match this filename -->
-    <!-- Lockstep heartbeat: 4 ms steps, 250 Hz, matching PX4's expectations. -->
+  <world name="lta">
     <physics type="ode">
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1.0</real_time_factor>
       <real_time_update_rate>250</real_time_update_rate>
     </physics>
     <gravity>0 0 -9.8</gravity>
-    <!-- Earth's field in Zurich, Tesla, ENU components; feeds the magnetometer. -->
     <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
-    <!-- Adiabatic pressure/temperature vs altitude; feeds the barometer.
-         (Sensor atmosphere only: it exerts NO forces. The force side of
-         the air is the Buoyancy system declared below.) -->
     <atmosphere type="adiabatic"/>
     <scene>
-      <grid>true</grid><!-- CHANGED: default.sdf says false. 1 m cells at the
-                            world origin, the coordinate reference we wanted.
-                            Too coarse for a 10.5 m vehicle? GUI plugin menu ->
-                            "Grid Config" resizes it live (e.g. cell size 5,
-                            count 100). -->
+      <grid>true</grid>
       <ambient>0.4 0.4 0.4 1</ambient>
       <background>0.7 0.7 0.7 1</background>
       <shadows>true</shadows>
     </scene>
-    <!-- GUI: same ownership rule as world plugins - declaring <gui> replaces
-         the ENTIRE default GUI plugin list, so this is the full stack from
-         underwater.sdf plus ComponentInspector and ViewAngle (top-down view
-         makes yaw tests readable). The camera starts 31 m out on the rear-
-         port quarter, framing the whole 10.5 m ship instead of default.sdf's
-         6 m close-up. To keep the drifting ship in view: select it and
-         re-click the View Angle top button (Follow works too, but snaps
-         to its own diagonal chase offset). -->
     <gui fullscreen="false">
       <plugin filename="MinimalScene" name="3D View">
         <gz-gui>
@@ -60,12 +31,6 @@
         <ambient_light>0.4 0.4 0.4</ambient_light>
         <background_color>0.8 0.8 0.8</background_color>
         <camera_pose>-22 -22 14 0 0.35 0.785</camera_pose>
-        <!-- Development default: start in the Orthographic view controller -
-             mouse control works anywhere (the orbit controller anchors to
-             the 3D point under the cursor and feels dead over empty sky),
-             and top-down angle readings are distortion-free. The toolbar
-             dropdown switches back to Orbit for perspective inspection.
-             Revisit before upstreaming: stock PX4 worlds start in orbit. -->
         <view_controller>ortho</view_controller>
         <camera_clip>
           <near>0.25</near>
@@ -192,13 +157,8 @@
       <plugin name="Component inspector" filename="ComponentInspector"/>
       <plugin name="View angle" filename="ViewAngle"/>
     </gui>
-    <!-- PLUGIN POLICY (settled empirically; final rule):
-         A world that declares ANY <plugin> owns its ENTIRE system list -
-         gz-sim then injects nothing (no defaults, no server-config systems).
-         Therefore a custom-physics world must declare the full stack itself.
-         This mirrors worlds/underwater.sdf exactly, with one addition:
-         Magnetometer, because this model carries a gz magnetometer sensor
-         (the BlueROV instead uses PX4-side SENS_EN_MAGSIM). -->
+    <!-- Declaring any world plugin replaces the entire default system list,
+         so the full stack is spelled out (same pattern as underwater.sdf). -->
     <plugin name="gz::sim::systems::Physics" filename="gz-sim-physics-system"/>
     <plugin name="gz::sim::systems::UserCommands" filename="gz-sim-user-commands-system"/>
     <plugin name="gz::sim::systems::SceneBroadcaster" filename="gz-sim-scene-broadcaster-system"/>
@@ -212,15 +172,8 @@
     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
       <render_engine>ogre2</render_engine>
     </plugin>
-    <!-- ADDED in 3b: buoyancy. Archimedes on the COLLISION volume of enabled
-         links: F = fluid_density * displaced_volume * g, applied at the
-         center of volume. Air at sea level: 1.225 kg/m^3.
-         For the airship (hull + gondola collision BOXES = 40 m^3): lift
-         is 1.225*40 = 49 kg, exactly the declared mass - neutrality is
-         exact by design (box volumes are rational; the earlier ellipsoid
-         collision's pi-volume could never match a decimal mass).
-         Same pattern as worlds/underwater.sdf, including the enable scoping:
-         PX4 spawns instances with a _0 suffix. -->
+    <!-- Buoyancy on the enabled links' collision volumes; PX4 spawns model
+         instances with a _0 suffix. -->
     <plugin filename="gz-sim-buoyancy-system" name="gz::sim::systems::Buoyancy">
       <uniform_fluid_density>1.225</uniform_fluid_density>
       <enable>airship::base_link</enable>
@@ -262,12 +215,7 @@
       <pose>0 0 0 0 -0 0</pose>
       <self_collide>false</self_collide>
     </model>
-    <!-- Ground MARKERS, visual-only (no collision, no buoyancy enable):
-         orientation/position reference that works far outside the 20 m GUI
-         grid. gz axis-color convention: red stripe = +x, green stripe = +y;
-         the four 200x200 m quadrant tiles alternate two grays so every
-         quadrant boundary reads like a 200 m ruler line. Thin BOXES (not
-         planes) stacked 2 cm apart to avoid z-fighting with the ground. -->
+    <!-- Visual-only ground markers: red = +x, green = +y, 200 m quadrant tiles. -->
     <model name="ground_markers">
       <static>true</static>
       <link name="link">
@@ -327,17 +275,8 @@
         </visual>
       </link>
     </model>
-    <!-- 3D FLIGHT GRID, visual-only (no collision, no buoyancy enable):
-         completes the ground markers into a "test hall" so 3D motion is
-         readable against fixed references from any camera angle.
-           - blue MAST at the origin, 20 m tall = the +z axis (gz color
-             convention: x red, y green, z blue), white rungs at 5/10/15 m
-           - two vertical grid WALLS, 10 m cells, 30 m tall: one behind
-             the standard broadside view (y = +25, spans x -30..+30) and
-             one behind the bow view (x = -25, spans y -30..+30); center
-             lines darker to mark the x = 0 / y = 0 planes.
-         Everything is visual-only: a drifting ship passes through the
-         walls without any physical effect. -->
+    <!-- Visual-only 3D reference: blue z-axis mast (rungs at 5/10/15 m) and
+         two 10 m-cell wall grids behind the broadside and bow views. -->
     <model name="flight_grid">
       <static>true</static>
       <link name="link">
@@ -578,8 +517,6 @@
         <falloff>0</falloff>
       </spot>
     </light>
-    <!-- Geographic origin: maps gz x/y/z to lat/lon/alt for the GNSS sensor.
-         Zurich, same as default.sdf, so EKF behavior is directly comparable. -->
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
       <world_frame_orientation>ENU</world_frame_orientation>
