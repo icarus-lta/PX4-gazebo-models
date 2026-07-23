@@ -1,47 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Generic airship - vectored side propulsion (fixed-tilt increment).
-  ==================================================================
+  Generic airship - vectored side propulsion (tilt-structure increment).
+  ======================================================================
   Two propellers on a transverse rod whose axis passes through the
   CENTER OF MASS (rod-through-CoG layout; the mounting rod is not
-  modeled). The target configuration vectors each propeller
-  independently about the rod (y) axis; the current increment models
-  the geometry only - propellers fixed forward at tilt = 0. Tilt
-  joints and their controllers arrive in the next increment.
+  modeled). Each propeller pod vectors independently about the rod (y)
+  axis. This increment adds the tilt joints and their position
+  controllers; both controllers hold tilt = 0 (thrust forward) until
+  commanded, which reproduces the fixed-tilt geometry exactly.
+
+  TILT CONVENTION AND PLACEHOLDERS
+    Joint axis is 0 -1 0, so POSITIVE tilt rotates the thrust vector UP
+    (0 = forward, +90 deg = straight up, +-180 deg = reverse). Range is
+    currently UNLIMITED and the position controller is a soft PD -
+    both are placeholders pending the vehicle's tilt-range and
+    servo-rate spec; replace the joint limits and controller gains when
+    those numbers arrive.
 
   THRUST GEOMETRY AND ITS SIGNATURE
-    Props at z = 0.90 = CoM height and x = 0 = CoM station: the thrust
-    moment arm about the CoM is zero, so forward thrust produces NO
-    pitch response and no thrust-induced climb or descent - by design.
-    Validated against the flank-mounted (CoV-height) layout this
-    configuration replaced: identical yaw authority, thrust-pitch
-    coupling 0.0853 -> 0.0004 rad. The earlier gondola- and
-    flank-mounted variants live in git history.
-    Lateral offsets +-1.5 m -> differential-thrust yaw -+27 N*m.
+    Pods at z = 0.8125 = CoM height and x = 0 = CoM station: the thrust
+    moment arm about the CoM is zero at every tilt angle, so thrust
+    produces NO pitch response - by design. At tilt 0: forward cruise
+    and differential-thrust yaw (arms +-1.5 m -> -+27 N*m). Vectoring
+    adds Fz (collective tilt), roll (differential tilt), and the pure
+    yaw couple (0/180 deg opposition, zero net force).
 
   DRIVE IT (standalone, env sourced, GZ_IP=127.0.0.1)
-    gz topic -t /airship/command/motor_speed -m gz.msgs.Actuators \
-      -p 'velocity: [200, 200]'          stop: -p 'velocity: [0, 0]'
-    -> 2 x 8 N on 43.03 kg = 0.372 m/s^2 forward; yaw and pitch stay 0.
+    motors:
+      gz topic -t /airship/command/motor_speed -m gz.msgs.Actuators \
+        -p 'velocity: [200, 200]'          stop: -p 'velocity: [0, 0]'
+      (with a PX4 instance attached, drive via px4-actuator_test
+      instead - gz_bridge republishes this topic continuously and
+      overrides one-shot messages within a cycle)
+    tilts (radians; model instance airship_0 when spawned by PX4):
+      gz topic -t /model/airship/joint/tilt_starboard_joint/0/cmd_pos \
+        -m gz.msgs.Double -p 'data: 1.570796326794897'
+      gz topic -t /model/airship/joint/tilt_port_joint/0/cmd_pos \
+        -m gz.msgs.Double -p 'data: 1.570796326794897'
     Motor numbering matches the 2500 airframe: 0 = starboard, 1 = port.
 
   Convention reminder: MulticopterMotorModel hardcodes thrust along the
   rotor LINK's +Z and spins the joint about that Z, so each prop link is
-  pitched +90 deg (link Z -> body +X) and joints use axis 0 0 1.
+  pitched +90 deg (link Z -> body +X; written with pose degrees="true"
+  so the quarter-turn is EXACT - no truncated pi in the geometry) and
+  spin joints use axis 0 0 1.
+  Mass bookkeeping: pod 0.4 + prop 0.1 = 0.5 kg per side, reserved in
+  the base's budget, so the exact 49.000 kg neutral total holds.
 -->
 <sdf version="1.10">
   <model name="airship">
     <include merge="true">
       <uri>model://airship_base</uri>
     </include>
-    <link name="prop_starboard">
-      <pose>0 -1.5 0.90 0 1.5708 0</pose>
+    <link name="pod_starboard">
+      <pose>0 -1.5 0.8125 0 0 0</pose>
       <inertial>
-        <mass>0.05</mass>
+        <mass>0.4</mass>
         <inertia>
-          <ixx>0.0001</ixx>
-          <iyy>0.0001</iyy>
-          <izz>0.0001</izz>
+          <ixx>0.001</ixx>
+          <iyy>0.001</iyy>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+      <visual name="pod_starboard_visual">
+        <geometry>
+          <box>
+            <size>0.10 0.06 0.06</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.3 0.3 0.3 1</ambient>
+          <diffuse>0.3 0.3 0.3 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <joint name="tilt_starboard_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>pod_starboard</child>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <damping>0.01</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="prop_starboard">
+      <pose degrees="true">0 -1.5 0.8125 0 90 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.001</ixx>
+          <iyy>0.001</iyy>
+          <izz>0.001</izz>
         </inertia>
       </inertial>
       <visual name="prop_starboard_visual">
@@ -57,7 +111,7 @@
       </visual>
     </link>
     <joint name="prop_starboard_joint" type="revolute">
-      <parent>base_link</parent>
+      <parent>pod_starboard</parent>
       <child>prop_starboard</child>
       <axis>
         <xyz>0 0 1</xyz>
@@ -71,14 +125,50 @@
         </dynamics>
       </axis>
     </joint>
-    <link name="prop_port">
-      <pose>0 1.5 0.90 0 1.5708 0</pose>
+    <link name="pod_port">
+      <pose>0 1.5 0.8125 0 0 0</pose>
       <inertial>
-        <mass>0.05</mass>
+        <mass>0.4</mass>
         <inertia>
-          <ixx>0.0001</ixx>
-          <iyy>0.0001</iyy>
-          <izz>0.0001</izz>
+          <ixx>0.001</ixx>
+          <iyy>0.001</iyy>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+      <visual name="pod_port_visual">
+        <geometry>
+          <box>
+            <size>0.10 0.06 0.06</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.3 0.3 0.3 1</ambient>
+          <diffuse>0.3 0.3 0.3 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <joint name="tilt_port_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>pod_port</child>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <damping>0.01</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="prop_port">
+      <pose degrees="true">0 1.5 0.8125 0 90 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.001</ixx>
+          <iyy>0.001</iyy>
+          <izz>0.001</izz>
         </inertia>
       </inertial>
       <visual name="prop_port_visual">
@@ -94,7 +184,7 @@
       </visual>
     </link>
     <joint name="prop_port_joint" type="revolute">
-      <parent>base_link</parent>
+      <parent>pod_port</parent>
       <child>prop_port</child>
       <axis>
         <xyz>0 0 1</xyz>
@@ -108,6 +198,20 @@
         </dynamics>
       </axis>
     </joint>
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+      <joint_name>tilt_starboard_joint</joint_name>
+      <p_gain>2.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.1</d_gain>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+      <joint_name>tilt_port_joint</joint_name>
+      <p_gain>2.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.1</d_gain>
+    </plugin>
     <plugin filename="gz-sim-multicopter-motor-model-system"
       name="gz::sim::systems::MulticopterMotorModel">
       <jointName>prop_starboard_joint</jointName>

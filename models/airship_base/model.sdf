@@ -2,55 +2,66 @@
 <!--
   Generic airship, SITL development model - SHARED BASE BODY.
   ============================================================
-  Hull, gondola, tail and sensors only; NO propulsion. Spawn one of the
-  variant wrappers instead - they merge-include this base and add props:
-    airship       - Gondola-/Frame-Mounted Propulsion
-    airship_side  - Side-/Flank-Mounted Propulsion
+  Hull, gondola, tail and sensors only; NO propulsion. Spawn the
+  variant wrapper instead - it merge-includes this base and adds the
+  vectored side propulsion:
+    airship - vectored side propulsion (rod through the CoM)
   Comments stay study-guide verbose until upstreaming.
 
   GEOMETRY (origin at gondola bottom center = ground contact point)
-    hull:    ellipsoid, semi-axes 5.25 x 1.25 x 1.25 m
-             (10.5 m long, 2.5 m diameter), center at z = 2.05
-    gondola: box 1.2 x 0.8 x 0.8 m, center at z = 0.40
+    hull:    VISUAL ellipsoid, semi-axes 5.25 x 1.25 x 1.25 m
+             (10.5 m long, 2.5 m diameter), center at z = 2.05.
+             COLLISION box 9.8 x 2 x 2 at the same center - see the
+             mass budget for why the buoyancy shape is a box.
+    gondola: box 1.25 x 0.8 x 0.8 m, center at z = 0.40
     fins:    two thin crossed plates at the stern, VISUAL ONLY
              (no collision: negligible volume, and aerodynamics will come
              from plugins in a later increment, not from contacts)
 
-  MASS BUDGET (buoyancy-neutral by construction)
-    displaced volume V = 4/3*pi*5.25*1.25^2 + 1.2*0.8*0.8
-                       = 34.361 + 0.768 = 35.129 m^3
-    neutral mass = 1.225 kg/m^3 * 35.129 m^3 = 43.033 kg
-      hull (envelope + fins):  13.033 kg at z = 2.05
-      gondola (all systems):   29.900 kg at z = 0.40
-      2 propellers:           2x0.050 kg (added by the variant wrapper)
+  MASS BUDGET (buoyancy-neutral EXACTLY, by design)
+    The buoyancy plugin integrates the COLLISION volumes. An ellipsoid
+    volume contains pi, so no finite-decimal mass can ever match it
+    (the residue was a measured ~0.4 g excess = 1.3 mm/s climb). Box
+    collisions have rational volumes, and V = 40 (no factor of 3) makes
+    every DERIVED quantity finite-decimal too - CoM, CoV, arm, inertias:
+      displaced volume V = 9.8*2*2 + 1.25*0.8*0.8
+                         = 39.2 + 0.8 = 40.000 m^3
+      lift = 1.225 kg/m^3 * 40 m^3 = 49.000 kg   (1.225 = 49/40)
+      hull (envelope + fins):  12.000 kg at z = 2.05
+      gondola (all systems):   36.000 kg at z = 0.40
+      pods + propellers:      2 x (0.4 + 0.1) kg (added by the wrapper)
+      total                    49.000 kg = lift -> neutral, no ballast
+    Mass-split rule: gondola divisible by 12 and hull by 5 keep the box
+    and ellipsoid inertia formulas finite-decimal as well.
 
   PROPULSION
-    None here. Each variant wrapper adds two propeller links (their
-    2x0.05 kg is reserved in the budget above). The mounting HEIGHT
-    relative to the CoM (0.900 m) sets the pitch coupling under thrust -
-    the design variable the two variants exist to compare.
+    None here. The wrapper adds two tilt pods + propellers (their
+    2 x 0.5 kg is reserved in the budget above) on the transverse rod
+    through the CoM at z = 0.8125.
 
-  THE PENDULUM (this increment's physics payoff)
-    center of mass (gondola variant, props at z = 0.40; the side variant
-    lands 4 mm higher)
-                    CoM = (13.033*2.05 + 30*0.40) / 43.033 = 0.900 m
-    center of volume CoV = (34.361*2.05 + 0.768*0.40) / 35.129 = 2.014 m
-    metacentric arm = CoV - CoM = 1.114 m
+  THE PENDULUM (every value below is exact, none rounded)
+    center of mass   CoM = (12*2.05 + 36*0.40) / 48 = 39/48
+                         = 0.8125 m (pods/props sit at the CoM plane,
+                           so they do not move it)
+    center of volume CoV = (39.2*2.05 + 0.8*0.40) / 40 = 80.68/40
+                         = 2.017 m
+    metacentric arm = CoV - CoM = 1.2045 m
     Buoyancy pulls UP at the CoV, weight DOWN at the CoM: tilt the ship
-    and the pair forms a righting couple ~ m*g*arm*sin(roll)
-      = 43.033 * 9.8 * 1.114 = 470 N*m per radian (small angles).
-    Undamped roll oscillation: T = 2*pi*sqrt(Ixx / 470)
-      = 2*pi*sqrt(36.1/470) = 1.74 s   <- hand prediction. MEASURED in
-    simulation: ~2.5 s. Discrepancy unresolved (suspect the hand model's
-    inertia reference vs the engine's); righting direction, restoring
-    magnitude scale and neutrality are the verified parts.
+    and the pair forms a righting couple ~ m*g*arm*sin(angle)
+      = 49 * 9.8 * 1.2045 = 578.4009 N*m per radian (small angles).
+    Undamped roll oscillation, hand model: T = 2*pi*sqrt(Ixx/578.4)
+      = 2*pi*sqrt(38.1/578.4) ~ 1.6 s. MEASURED in simulation: ~2.5 s;
+    discrepancy unresolved (suspect the hand model's inertia reference
+    vs the engine's); righting direction, restoring magnitude scale and
+    neutrality are the verified parts.
 
   VERIFY (standalone, env sourced, GZ_IP=127.0.0.1)
-    spawn, then teleport to altitude: it should HOLD (neutral).
+    spawn, teleport to altitude: it holds (neutrality is now exact by
+    construction - hands-off drift is solver noise, not net lift).
     tilt it:  gz service -s /world/lta/set_pose ... roll ~0.35 rad
-      -> it swings back and oscillates around upright (measured ~2.5 s).
-    gz model -m airship - -link   (mind the space) shows mass 43.033 and
-    the inertia below; View -> Center of Mass shows the marker low,
+      -> it swings back and oscillates around upright.
+    gz model -m airship - -link   (mind the space) shows base mass 48.0
+    and the inertia below; View -> Center of Mass shows the marker low,
     inside the hull's lower half - the pendulum, visible.
 -->
 <sdf version="1.10">
@@ -60,23 +71,27 @@
     <link name="base_link">
       <pose>0 0 0 0 0 0</pose>
       <inertial>
-        <!-- Combined CoM of hull + gondola (props carry their own 2x0.05 kg
-             in their own links; total stays 43.033 kg = neutral).
-             Low CoM + high CoV = pendulum stability. -->
-        <pose>0 0 0.901 0 0 0</pose>
-        <mass>42.933</mass>
-        <!-- Composite inertia about the CoM (parallel-axis by hand):
-             hull (solid ellipsoid): Ixx = m(b^2+c^2)/5           =  8.15
-                                     Iyy = Izz = m(a^2+b^2)/5     = 75.92
-               + hull offset dz = 2.05-0.90 = 1.15: m*dz^2        = 17.24 (to Ixx, Iyy)
-             gondola (box):          Ixx = m(y^2+z^2)/12          =  3.20
-                                     Iyy = Izz = m(x^2+z^2)/12    =  5.20
-               + gondola offset dz = -0.50: m*dz^2                =  7.50 (to Ixx, Iyy)
-             Totals: Ixx = 36.1, Iyy = 105.9, Izz = 81.1 kg m^2 -->
+        <!-- Combined CoM of hull + gondola (pods/props carry their own
+             2x0.5 kg in their own links AT the CoM plane; total stays
+             49.000 kg = neutral). Low CoM + high CoV = pendulum. -->
+        <pose>0 0 0.8125 0 0 0</pose>
+        <mass>48.0</mass>
+        <!-- Composite inertia about the CoM (parallel-axis by hand).
+             The hull keeps the SOLID-ELLIPSOID inertia model (the
+             physical envelope), even though its collision is a box -
+             collisions feed buoyancy/contacts, not inertia:
+             hull (solid ellipsoid): Ixx = m(b^2+c^2)/5           =  7.5
+                                     Iyy = Izz = m(a^2+b^2)/5     = 69.9
+               + hull offset dz = 2.05-0.8125 = 1.2375: m*dz^2    = 18.376875 (to Ixx, Iyy)
+             gondola (box):          Ixx = m(y^2+z^2)/12          =  3.84
+                                     Iyy = Izz = m(x^2+z^2)/12    =  6.6075
+               + gondola offset dz = -0.4125: m*dz^2              =  6.125625 (to Ixx, Iyy)
+             Totals: Ixx = 35.8425, Iyy = 101.01, Izz = 76.5075
+             (all finite-decimal, exact - see the mass-split rule) -->
         <inertia>
-          <ixx>36.1</ixx>
-          <iyy>105.9</iyy>
-          <izz>81.1</izz>
+          <ixx>35.8425</ixx>
+          <iyy>101.01</iyy>
+          <izz>76.5075</izz>
           <ixy>0</ixy>
           <ixz>0</ixz>
           <iyz>0</iyz>
@@ -91,23 +106,25 @@
              A plant inconsistent between force paths is worse than a
              rigid one, so it stays out. -->
       </inertial>
-      <!-- HULL collision: the buoyancy volume (34.36 m^3) and the shape that
-           matters if the ship ever rolls fully over. -->
+      <!-- HULL collision: the buoyancy volume, as a BOX (39.2 m^3 exactly;
+           rational on purpose - see the mass budget). Also the shape that
+           matters if the ship ever rolls fully over; the box stays inside
+           the visual footprint's length and slightly proud of its beam. -->
       <collision name="hull_collision">
         <pose>0 0 2.05 0 0 0</pose>
         <geometry>
-          <ellipsoid>
-            <radii>5.25 1.25 1.25</radii>
-          </ellipsoid>
+          <box>
+            <size>9.8 2 2</size>
+          </box>
         </geometry>
       </collision>
-      <!-- GONDOLA collision: the ground-contact shape (and 0.77 m^3 of
+      <!-- GONDOLA collision: the ground-contact shape (and 0.8 m^3 of
            buoyancy volume, included in the mass budget). -->
       <collision name="gondola_collision">
         <pose>0 0 0.4 0 0 0</pose>
         <geometry>
           <box>
-            <size>1.2 0.8 0.8</size>
+            <size>1.25 0.8 0.8</size>
           </box>
         </geometry>
         <surface>
@@ -139,7 +156,7 @@
         <pose>0 0 0.4 0 0 0</pose>
         <geometry>
           <box>
-            <size>1.2 0.8 0.8</size>
+            <size>1.25 0.8 0.8</size>
           </box>
         </geometry>
         <material>
@@ -276,7 +293,7 @@
     </link>
     <!-- ============ MODEL SCOPE (indoor free-flight validation) ============
          The simulated plant is exactly: rigid body + buoyancy + the two
-         thrusters added by a variant wrapper. Deliberately excluded, as
+         vectored thrusters added by the wrapper. Deliberately excluded, as
          second-order for low-speed initial-response tests in still air:
            - hull ADDED MASS (also blocked by an engine limitation;
              note inside <inertial> above)
@@ -294,8 +311,10 @@
     <!-- FRAME MAPPING to the validation datum (CV-origin, FRD axes):
          this model's origin is the gondola bottom in gz world axes
          (x forward, y LEFT, z UP). The center of volume CV sits at
-         (0, 0, 2.014) in model coordinates. Convert model -> CV-FRD by:
-           x_frd = x_gz,  y_frd = -y_gz,  z_frd = -(z_gz - 2.014)
+         (0, 0, 2.017) in model coordinates - an EXACT datum (moved from
+         2.014 across the exact-buoyancy redesigns; sync DOC-253 rows on
+         the next doc pass). Convert model -> CV-FRD by:
+           x_frd = x_gz,  y_frd = -y_gz,  z_frd = -(z_gz - 2.017)
          (FRD: +x forward, +y starboard, +z down.) -->
   </model>
 </sdf>
