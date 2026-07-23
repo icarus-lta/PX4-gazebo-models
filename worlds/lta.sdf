@@ -223,8 +223,6 @@
       <uniform_fluid_density>1.225</uniform_fluid_density>
       <enable>airship::base_link</enable>
       <enable>airship_0::base_link</enable>
-      <enable>airship_side::base_link</enable>
-      <enable>airship_side_0::base_link</enable>
     </plugin>
     <model name="ground_plane">
       <static>true</static>

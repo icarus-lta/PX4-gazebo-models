@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Generic airship - variant: Gondola-/Frame-Mounted Propulsion.
-  =============================================================
-  Two propellers on the gondola sides (classic RC-blimp arrangement).
-  This wrapper merge-includes airship_base and adds only propulsion.
+  Generic airship - vectored side propulsion (fixed-tilt increment).
+  ==================================================================
+  Two propellers on a transverse rod whose axis passes through the
+  CENTER OF MASS (rod-through-CoG layout; the mounting rod is not
+  modeled). The target configuration vectors each propeller
+  independently about the rod (y) axis; the current increment models
+  the geometry only - propellers fixed forward at tilt = 0. Tilt
+  joints and their controllers arrive in the next increment.
 
   THRUST GEOMETRY AND ITS SIGNATURE
-    Props at z = 0.40; CoM at 0.90: the thrust line runs 0.50 m BELOW the
-    CoM, so forward thrust pitches the nose UP by roughly
-      theta = F * dz / righting = 16 * 0.50 / 470 = 0.017 rad (~1 deg)
-    at full test thrust, plus a slow climb from the tilted thrust vector.
-    Compare with airship_side, whose thrust line sits ABOVE the CoM.
+    Props at z = 0.90 = CoM height and x = 0 = CoM station: the thrust
+    moment arm about the CoM is zero, so forward thrust produces NO
+    pitch response and no thrust-induced climb or descent - by design.
+    Validated against the flank-mounted (CoV-height) layout this
+    configuration replaced: identical yaw authority, thrust-pitch
+    coupling 0.0853 -> 0.0004 rad. The earlier gondola- and
+    flank-mounted variants live in git history.
+    Lateral offsets +-1.5 m -> differential-thrust yaw -+27 N*m.
 
   DRIVE IT (standalone, env sourced, GZ_IP=127.0.0.1)
     gz topic -t /airship/command/motor_speed -m gz.msgs.Actuators \
       -p 'velocity: [200, 200]'          stop: -p 'velocity: [0, 0]'
-    -> 2 x 8 N on 43.03 kg = 0.372 m/s^2 forward; yaw stays 0 because the
-    opposite turning directions cancel the reaction torques (which is why
-    the airframe's allocator also sets CA_ROTORn_KM = 0).
+    -> 2 x 8 N on 43.03 kg = 0.372 m/s^2 forward; yaw and pitch stay 0.
     Motor numbering matches the 2500 airframe: 0 = starboard, 1 = port.
 
   Convention reminder: MulticopterMotorModel hardcodes thrust along the
@@ -30,7 +35,7 @@
       <uri>model://airship_base</uri>
     </include>
     <link name="prop_starboard">
-      <pose>0.3 -0.55 0.4 0 1.5708 0</pose>
+      <pose>0 -1.5 0.90 0 1.5708 0</pose>
       <inertial>
         <mass>0.05</mass>
         <inertia>
@@ -67,7 +72,7 @@
       </axis>
     </joint>
     <link name="prop_port">
-      <pose>0.3 0.55 0.4 0 1.5708 0</pose>
+      <pose>0 1.5 0.90 0 1.5708 0</pose>
       <inertial>
         <mass>0.05</mass>
         <inertia>
