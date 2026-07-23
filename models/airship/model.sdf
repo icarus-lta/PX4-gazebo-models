@@ -32,11 +32,15 @@
       (with a PX4 instance attached, drive via px4-actuator_test
       instead - gz_bridge republishes this topic continuously and
       overrides one-shot messages within a cycle)
-    tilts (radians; model instance airship_0 when spawned by PX4):
-      gz topic -t /model/airship/joint/tilt_starboard_joint/0/cmd_pos \
-        -m gz.msgs.Double -p 'data: 1.570796326794897'
-      gz topic -t /model/airship/joint/tilt_port_joint/0/cmd_pos \
-        -m gz.msgs.Double -p 'data: 1.570796326794897'
+    tilts (radians, on the PX4-bridge servo topics; a PX4-spawned
+    instance is /model/airship_0/...):
+      gz topic -t /model/airship/servo_0 -m gz.msgs.Double \
+        -p 'data: 1.570796326794897'
+      gz topic -t /model/airship/servo_1 -m gz.msgs.Double \
+        -p 'data: 1.570796326794897'
+    tilts through PX4 (servo outputs 1/2; -1..1 spans -180..+180 deg,
+    so 0 = forward, +0.5 = 90 deg up, +-1 = reverse):
+      actuator_test set -s 1 -v 0.5 -t 10
     Motor numbering matches the 2500 airframe: 0 = starboard, 1 = port.
 
   Convention reminder: MulticopterMotorModel hardcodes thrust along the
@@ -201,6 +205,7 @@
     <plugin filename="gz-sim-joint-position-controller-system"
       name="gz::sim::systems::JointPositionController">
       <joint_name>tilt_starboard_joint</joint_name>
+      <sub_topic>servo_0</sub_topic>
       <p_gain>2.0</p_gain>
       <i_gain>0.0</i_gain>
       <d_gain>0.1</d_gain>
@@ -208,6 +213,7 @@
     <plugin filename="gz-sim-joint-position-controller-system"
       name="gz::sim::systems::JointPositionController">
       <joint_name>tilt_port_joint</joint_name>
+      <sub_topic>servo_1</sub_topic>
       <p_gain>2.0</p_gain>
       <i_gain>0.0</i_gain>
       <d_gain>0.1</d_gain>
