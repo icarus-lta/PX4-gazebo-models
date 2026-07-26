@@ -176,8 +176,8 @@
          instances with a _0 suffix. -->
     <plugin filename="gz-sim-buoyancy-system" name="gz::sim::systems::Buoyancy">
       <uniform_fluid_density>1.225</uniform_fluid_density>
-      <enable>airship::base_link</enable>
-      <enable>airship_0::base_link</enable>
+      <enable>airship_vectored_independent::base_link</enable>
+      <enable>airship_vectored_independent_0::base_link</enable>
     </plugin>
     <model name="ground_plane">
       <static>true</static>

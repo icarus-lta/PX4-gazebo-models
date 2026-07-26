@@ -10,7 +10,7 @@
   plugin's thrust axis, points forward.
 -->
 <sdf version="1.10">
-  <model name="airship">
+  <model name="airship_vectored_independent">
     <include merge="true">
       <uri>model://airship_base</uri>
     </include>
