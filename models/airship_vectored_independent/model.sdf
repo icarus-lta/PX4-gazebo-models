@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Generic airship with vectored side propulsion: two propeller pods on a
-  transverse rod through the center of mass, so thrust produces no pitch
-  moment at any tilt angle. Each pod tilts about the rod via a
-  position-controlled joint driven from the PX4 servo bridge
-  (servo_0 = starboard, servo_1 = port; positive tilt = thrust up).
+  Two independently vectored pods on a transverse rod through the center of
+  mass (servo_0 = starboard, servo_1 = port; positive tilt = thrust up).
   Tilt range and servo dynamics are placeholders pending the vehicle
   specification. Prop links are pitched 90 deg so link +Z, the motor
   plugin's thrust axis, points forward.
