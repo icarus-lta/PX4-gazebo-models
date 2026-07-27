@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Lighter-than-air development world: buoyant air for airships.
-  Standalone: source build/px4_sitl_default/rootfs/gz_env.sh && gz sim -r $PX4_GZ_WORLDS/lta.sdf
 -->
 <sdf version="1.9">
   <world name="lta">

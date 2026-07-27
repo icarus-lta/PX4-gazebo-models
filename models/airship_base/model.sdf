@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Generic airship base body: hull, gondola, tail and sensors; propulsion
-  is added by the airship wrapper. Neutrally buoyant by construction:
+  is added by wrapper models. Neutrally buoyant by construction:
   the box collision volumes total 40 m^3, so lift at 1.225 kg/m^3 is
   exactly the declared 49 kg total (hull 12 + gondola 36 + pods/props 1).
   CoM 0.8125 m, CoV 2.017 m. Added mass and aerodynamics are
