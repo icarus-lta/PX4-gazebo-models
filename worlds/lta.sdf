@@ -153,8 +153,10 @@
       </plugin>
       <plugin name="Entity tree" filename="EntityTree"/>
     </gui>
-    <!-- Declaring any world plugin replaces the entire default system list,
-         so the full stack is spelled out (same pattern as underwater.sdf). -->
+    <!-- Declaring any world plugin replaces gz's entire default system list,
+         so the stack is spelled out: PX4's server.config set, less the camera
+         and optical-flow systems this vehicle does not carry, plus Buoyancy
+         and Magnetometer. -->
     <plugin name="gz::sim::systems::Physics" filename="gz-sim-physics-system"/>
     <plugin name="gz::sim::systems::UserCommands" filename="gz-sim-user-commands-system"/>
     <plugin name="gz::sim::systems::SceneBroadcaster" filename="gz-sim-scene-broadcaster-system"/>
@@ -165,6 +167,7 @@
     <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
     <plugin name="gz::sim::systems::NavSat" filename="gz-sim-navsat-system"/>
     <plugin name="gz::sim::systems::ApplyLinkWrench" filename="gz-sim-apply-link-wrench-system"/>
+    <plugin name="gz::sim::systems::WindEffects" filename="gz-sim-wind-effects-system"/>
     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
       <render_engine>ogre2</render_engine>
     </plugin>
