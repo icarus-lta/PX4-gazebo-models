@@ -10,7 +10,7 @@
   explicit force, and at an airship's ratios (the hull's added sway mass is of
   the order of its dry mass) that diverges within a fraction of a second. Added
   mass belongs in the link's <fluid_added_mass>, which the physics engine folds
-  into the spatial inertia, and is not modelled yet.
+  into the spatial inertia, and is not modeled yet.
 
   The dimensionless coefficients are the airship-control-design reference set
   (c_d 0.08906 axial, c_lat 3.08324 lateral, c_lp_lin 0.04 and c_lp_quad 0.18
@@ -21,10 +21,15 @@
   m^2 and L = 10.5 m, giving 161.6154 N m. Translational terms are then
   -0.5 * rho * A * c, rotational terms -161.6154 * c.
 
-  The plugin applies its wrench at the link origin, while hull drag acts at the
-  hull centre 2.05 m above it. Only the moment that lateral drag should make
-  about the roll axis is lost by that; the rotational damping, which is what a
-  rate loop meets, is a pure couple and is unaffected.
+  The plugin applies its wrench at the link origin (gz::sim::Link has an
+  offset form, but Hydrodynamics calls the two-argument AddWorldWrench, which
+  the header documents as acting at the origin). That origin is 0.8125 m below
+  the centre of mass, while hull drag acts on the hull axis 1.2375 m above it,
+  so the moments of the three translational terms come out with the wrong sign
+  and 0.66x the size: axial drag pitches the nose down where it should pitch it
+  up. At 3 m/s that is 4.3 N m against 579 N m/rad of buoyant pendulum
+  stiffness, so it is worth 0.4 deg of trim. The rotational damping, which is
+  what a rate loop meets, is a pure couple and is unaffected.
 -->
 <sdf version="1.10">
   <model name="airship_vectored_independent_aero">

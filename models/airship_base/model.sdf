@@ -4,8 +4,11 @@
   is added by wrapper models. Neutrally buoyant by construction:
   the box collision volumes total 40 m^3, so lift at 1.225 kg/m^3 is
   exactly the declared 49 kg total (hull 12 + gondola 36 + pods/props 1).
-  CoM 0.8125 m, CoV 2.017 m. Added mass and aerodynamics are
-  intentionally not modeled.
+  CoM 0.8125 m, CoV 2.017 m. The hull collision is a box sized for volume
+  rather than shape: it displaces 39.2 m^3 where the drawn ellipsoid would
+  displace 34.36 m^3, and the mass is set against the box. Added mass is not
+  modeled; airship_vectored_independent_aero adds hull drag and rotational
+  damping.
 -->
 <sdf version="1.10">
   <model name="airship_base">
@@ -83,7 +86,8 @@
           <specular>0.2 0.2 0.2 1</specular>
         </material>
       </visual>
-      <!-- Cruciform tail, visual only -->
+      <!-- Cruciform tail, visual only: no collision and no lift-drag, so it
+           adds no weathercock stiffness, in the _aero variant either -->
       <visual name="fin_horizontal_visual">
         <pose>-4.3 0 2.05 0 0 0</pose>
         <geometry>
@@ -127,7 +131,10 @@
         <always_on>1</always_on>
         <update_rate>100</update_rate>
         <magnetometer>
-          <!-- Same values as x500 (intent ~3 mgauss RMS, IIS2MDC-class) -->
+          <!-- TODO: update to fix units and coordinate system when we move past Harmonic -->
+          <!-- See https://github.com/gazebosim/gz-sim/pull/2460 -->
+          <!-- 3mgauss RMS: NOTE: noise is in tesla but sensor reports data in gauss -->
+          <!-- Noise modeled after IIS2MDC -->
           <x>
             <noise type="gaussian">
               <stddev>0.0001</stddev>
