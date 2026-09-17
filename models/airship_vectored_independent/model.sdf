@@ -2,10 +2,12 @@
 <!--
   Two independently vectored pods, mounted through the center of
   mass (servo_0 = starboard, servo_1 = port; positive tilt = thrust up).
-  The tilt joints are left unbounded on purpose: the usable range belongs to
-  the airframe (CA_AIRSHIP_TLMIN/TLMAX, +-180 deg as shipped), so the model
-  does not impose a second one. The servo gains and the pod and prop inertias
-  are placeholders. Prop links are pitched 90 deg so link +Z, the motor
+  The tilt joints stop at +-pi and the prop joints do not: a pod is a servo,
+  a prop really does spin. The stop clips no reachable command, because the
+  bridge maps the servo output onto SIM_GZ_SV_MINA/MAXA and the parameter
+  metadata bounds both of those to +-180 deg. It agrees with the allocator,
+  which treats the rear as a cut it will not cross rather than a way round.
+  The servo gains and the pod and prop inertias are placeholders. Prop links are pitched 90 deg so link +Z, the motor
   plugin's thrust axis, points forward.
 -->
 <sdf version="1.10">
@@ -41,8 +43,8 @@
       <axis>
         <xyz>0 -1 0</xyz>
         <limit>
-          <lower>-1e+16</lower>
-          <upper>1e+16</upper>
+          <lower>-3.141593</lower>
+          <upper>3.141593</upper>
         </limit>
         <dynamics>
           <damping>0.01</damping>
@@ -114,8 +116,8 @@
       <axis>
         <xyz>0 -1 0</xyz>
         <limit>
-          <lower>-1e+16</lower>
-          <upper>1e+16</upper>
+          <lower>-3.141593</lower>
+          <upper>3.141593</upper>
         </limit>
         <dynamics>
           <damping>0.01</damping>
