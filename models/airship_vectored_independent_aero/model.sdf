@@ -24,13 +24,38 @@
 
   The plugin applies its wrench at the link origin (gz::sim::Link has an
   offset form, but Hydrodynamics calls the two-argument AddWorldWrench, which
-  the header documents as acting at the origin). That origin is 0.8125 m below
-  the centre of mass, while hull drag acts on the hull axis 1.2375 m above it,
-  so the moments of the three translational terms come out with the wrong sign
-  and 0.66x the size: axial drag pitches the nose down where it should pitch it
-  up. At 3 m/s the sign flip is worth 4.3 N m of error against 579 N m/rad
-  of buoyant pendulum stiffness, so 0.4 deg of trim. The rotational damping, which is
-  what a rate loop meets, is a pure couple and is unaffected.
+  the header documents as acting at the link's origin). It reads the velocity
+  there too. So the origin, not the hull axis and not the center of mass, is
+  the point this whole coefficient set is written about, and it sits 2.05 m
+  below the axis the drag acts on. About a point off the axis the set is not
+  diagonal, and not in one way but two, so six cross terms.
+
+  Two conditions make the plugin's wrench the hull's. The force it applies has
+  to be the force on the hull, which is set by the velocity at the axis and
+  not at the origin; and the couple has to be d x F for d = (0, 0, 2.05), the
+  offset between the two points. The center of mass appears in neither, which
+  is the check on the algebra: a derivation that only matches the moment about
+  the center of mass satisfies the second condition and quietly leaves the
+  first one broken, because the force error's own lever hides it there.
+
+  So each in-plane axis needs four coefficients where the plugin had one: the
+  drag itself, its rate term on the force, its arm on the couple, and that
+  arm's rate term. The arm pair is what stops forward flight pitching the nose
+  down. The rate terms are what stop the hull rolling itself apart: without
+  kPabsV the roll damping changes sign above 0.4 m/s of sideslip and settles
+  into a 6 deg limit cycle.
+
+  One term of the shift has no home in this plugin's grammar, a squared rate
+  that follows the sign of the velocity rather than of the rate. At the center
+  of mass it is worth 3.0 N of sway and 3.7 N m of roll at 0.3 rad/s against
+  578 N m/rad of restoring, and it falls away with the rate. The expansion
+  behind all of it holds while the rate-induced velocity stays under the
+  velocity itself. Past that, which is near-still air, these terms overshoot
+  rather than reverse: in still air the hull's own contribution to roll
+  damping reads 26.4 N m/(rad/s)^2 where it should read 15.1, so the total
+  with kPabsP comes out 55.5 against 44.2, a quarter high and on the safe
+  side. The rotational damping is a pure couple, equal about every point and
+  untouched by any of this.
 -->
 <sdf version="1.10">
   <model name="airship_vectored_independent_aero">
@@ -49,6 +74,25 @@
       <kPabsP>-29.0908</kPabsP>
       <mQabsQ>-193.9384</mQabsQ>
       <nRabsR>-193.9384</nRabsR>
+      <!-- The same two drags written about the link origin, h = 2.05 m below
+           the hull axis they act on. Surge and pitch, from u_hull = u + h q
+           and M_y = +h F_x; sway and roll, from v_hull = v - h p and
+           M_x = -h F_y. Both signs follow from d x F for d = (0, 0, h), and
+           the leading minus on yPabsV and kVabsV is that, not a typo.
+             xQabsU = 2h  * xUabsU   yPabsV = -2h  * yVabsV   [N/(rad/s)/(m/s)]
+             mUabsU =  h  * xUabsU   kVabsV =  -h  * yVabsV   [N m/(m/s)^2]
+             mQabsU = 2h^2* xUabsU   kPabsV = 2h^2 * yVabsV   [N m/(rad/s)/(m/s)]
+           Heave has no row of its own: its line of action runs through both
+           points, and no rate changes it, because d is along it. -->
+      <xQabsU>-0.9467</xQabsU>
+      <yPabsV>32.7697</yPabsV>
+      <mUabsU>-0.4733</mUabsU>
+      <mQabsU>-1.9407</mQabsU>
+      <kVabsV>16.3848</kVabsV>
+      <kPabsV>-67.1778</kPabsV>
+      <!-- Inert while no xDot* term is set, and kept for when one is: it is
+           also what tells the plugin to stand back if the link ever gains a
+           <fluid_added_mass>, which it would otherwise double-count. -->
       <disable_added_mass>true</disable_added_mass>
     </plugin>
   </model>
