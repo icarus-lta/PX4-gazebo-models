@@ -15,7 +15,8 @@
   The dimensionless coefficients are the airship-control-design reference set
   (c_d 0.08906 axial, c_lat 3.08324 lateral, c_lp_lin 0.04 and c_lp_quad 0.18
   roll, c_mq = c_nr 1.2 pitch and yaw). The reference area and length are this
-  hull's, not that design's: this is a 10.5 x 2.5 m hull, so the frontal
+  hull's, not that design's, and the fluid is air at rho = 1.225 kg/m^3
+  despite the plugin's name: this is a 10.5 x 2.5 m hull, so the frontal
   reference radius scales with the half-height to 1.16068 m (A = 4.2323 m^2)
   and the rotational scale is 0.5 * rho * S * L^3 * 0.003438 with S = 66.2984
   m^2 and L = 10.5 m, giving 161.6154 N m. Translational terms are then
@@ -27,8 +28,8 @@
   the centre of mass, while hull drag acts on the hull axis 1.2375 m above it,
   so the moments of the three translational terms come out with the wrong sign
   and 0.66x the size: axial drag pitches the nose down where it should pitch it
-  up. At 3 m/s that is 4.3 N m against 579 N m/rad of buoyant pendulum
-  stiffness, so it is worth 0.4 deg of trim. The rotational damping, which is
+  up. At 3 m/s the sign flip is worth 4.3 N m of error against 579 N m/rad
+  of buoyant pendulum stiffness, so 0.4 deg of trim. The rotational damping, which is
   what a rate loop meets, is a pure couple and is unaffected.
 -->
 <sdf version="1.10">

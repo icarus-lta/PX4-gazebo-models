@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Two independently vectored pods on a transverse rod through the center of
+  Two independently vectored pods, mounted through the center of
   mass (servo_0 = starboard, servo_1 = port; positive tilt = thrust up).
   The tilt joints are left unbounded on purpose: the usable range belongs to
   the airframe (CA_AIRSHIP_TLMIN/TLMAX, +-180 deg as shipped), so the model
@@ -179,9 +179,11 @@
          300 (the airframe's SIM_GZ_EC_MAX1/2) and motorConstant 8.54858e-06
          -> 2e-04, so 0.0002 * 300^2 = 18 N per pod, 36 N on a 49 kg vehicle.
          momentConstant, rotorDragCoefficient and rollingMomentCoefficient are
-         still the quadrotor's: the reaction couple they give is 0.29 N m
-         against 27 N m of differential-thrust yaw, and it cancels at equal
-         thrust. -->
+         still the quadrotor's. The reaction couple is 0.29 N m about each
+         prop's own thrust axis, so body roll at zero tilt swinging into yaw
+         as the pods tilt; the two oppose and cancel at equal thrust, and the
+         full-differential residual is 0.29 N m against 579 N m/rad of roll
+         stiffness, 0.03 deg. -->
     <plugin filename="gz-sim-multicopter-motor-model-system"
       name="gz::sim::systems::MulticopterMotorModel">
       <jointName>prop_starboard_joint</jointName>
