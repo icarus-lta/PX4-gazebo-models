@@ -179,6 +179,8 @@
       <enable>airship_vectored_independent_0::base_link</enable>
       <enable>airship_vectored_independent_aero::base_link</enable>
       <enable>airship_vectored_independent_aero_0::base_link</enable>
+      <enable>cloudship::base_link</enable>
+      <enable>cloudship_0::base_link</enable>
     </plugin>
     <model name="ground_plane">
       <static>true</static>
