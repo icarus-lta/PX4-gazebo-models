@@ -30,7 +30,6 @@
         <ambient_light>0.4 0.4 0.4</ambient_light>
         <background_color>0.8 0.8 0.8</background_color>
         <camera_pose>-22 -22 14 0 0.35 0.785</camera_pose>
-        <view_controller>ortho</view_controller>
         <camera_clip>
           <near>0.25</near>
           <far>25000</far>
@@ -153,8 +152,6 @@
         <iterations>1</iterations>
       </plugin>
       <plugin name="Entity tree" filename="EntityTree"/>
-      <plugin name="Component inspector" filename="ComponentInspector"/>
-      <plugin name="View angle" filename="ViewAngle"/>
     </gui>
     <!-- Declaring any world plugin replaces the entire default system list,
          so the full stack is spelled out (same pattern as underwater.sdf). -->
