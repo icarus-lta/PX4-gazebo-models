@@ -397,8 +397,19 @@
         </dynamics>
       </axis>
     </joint>
+    <!-- At the trailing edge of the ventral fin root, which is where the
+         classic model puts it: r_fin_x - fin_root_chord/2 back and r_fin_rad
+         down, so -1.6475 - 0.2325 and 0.8986 - 0.5634. It was on the hull
+         axis at the fin station, which is 0.2325 m too far forward, 0.5634 m
+         too high, and buried inside the hull - the ellipsoid still has a
+         0.550 m local radius there. The height is what mattered: on the axis
+         the tail's thrust acts 0.49 m above the centre of mass and banks the
+         hull 1.9 degrees every time it yaws, where at the fin root it acts
+         0.07 m below it and the bank is 0.27 degrees the other way. A yaw
+         thruster goes in the lower fin precisely so that yaw does not roll
+         the vehicle. -->
     <link name="prop_tail">
-      <pose degrees="true">-1.6475 0 0.8986 -90 0 0</pose>
+      <pose degrees="true">-1.88 0 0.3352 -90 0 0</pose>
       <inertial>
         <mass>0.02</mass>
         <inertia>
@@ -482,9 +493,11 @@
       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
       <motorType>velocity</motorType>
     </plugin>
-    <!-- 2.3544 N at full command, the classic model's 0.24 kg prop, 1.663 m
-         behind the center of mass for 3.92 N m of yaw. Its thrust axis is
-         +Y, so a positive command swings the nose to starboard.
+    <!-- 2.3544 N at full command, the classic model's 0.24 kg prop, 1.903 m
+         behind the center of mass for 4.48 N m of yaw. Its thrust axis is
+         +Y, so a positive command swings the nose to starboard, and it sits
+         0.07 m below the centre of mass, so a full-command yaw also banks the
+         hull 0.27 degrees.
 
          This is the vehicle's only yaw authority, so it has to go both ways,
          and it is the one motor here that is not a MulticopterMotorModel.
