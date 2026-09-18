@@ -493,7 +493,7 @@
       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
       <motorType>velocity</motorType>
     </plugin>
-    <!-- 2.3544 N at full command, the classic model's 0.24 kg prop, 1.903 m
+    <!-- 2.3544 N at full command, the classic model's 0.24 kg prop, 1.902 m
          behind the center of mass for 4.48 N m of yaw. Its thrust axis is
          +Y, so a positive command swings the nose to starboard, and it sits
          0.07 m below the centre of mass, so a full-command yaw also banks the
