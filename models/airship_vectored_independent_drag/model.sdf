@@ -58,7 +58,7 @@
   untouched by any of this.
 -->
 <sdf version="1.10">
-  <model name="airship_vectored_independent_aero">
+  <model name="airship_vectored_independent_drag">
     <include merge="true">
       <uri>model://airship_vectored_independent</uri>
     </include>

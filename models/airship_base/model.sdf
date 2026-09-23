@@ -8,7 +8,7 @@
   CoM 0.8125 m, CoV 2.017 m. The hull collision is a box sized for volume
   rather than shape: it displaces 39.2 m^3 where the drawn ellipsoid would
   displace 34.36 m^3, and the mass is set against the box. Added mass is not
-  modeled; airship_vectored_independent_aero adds hull drag and rotational
+  modeled; airship_vectored_independent_drag adds hull drag and rotational
   damping.
 -->
 <sdf version="1.10">
@@ -88,7 +88,7 @@
         </material>
       </visual>
       <!-- Cruciform tail, visual only: no collision and no lift-drag, so it
-           adds no weathercock stiffness, in the _aero variant either -->
+           adds no weathercock stiffness, in the _drag variant either -->
       <visual name="fin_horizontal_visual">
         <pose>-4.3 0 2.05 0 0 0</pose>
         <geometry>
