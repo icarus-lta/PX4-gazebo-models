@@ -171,8 +171,7 @@
     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
       <render_engine>ogre2</render_engine>
     </plugin>
-    <!-- Buoyancy on the enabled links' collision volumes; PX4 spawns model
-         instances with a _0 suffix. -->
+    <!-- Buoyancy on the enabled links' collision volumes. -->
     <plugin filename="gz-sim-buoyancy-system" name="gz::sim::systems::Buoyancy">
       <uniform_fluid_density>1.225</uniform_fluid_density>
       <!-- One line per spawn name. px4-rc.gzsim spawns <model>_<instance>,
@@ -181,7 +180,8 @@
            lighter-than-air vehicle than for the submarine this pattern comes
            from - buoyancy is 100% of its weight support, not a trim term - so
            the first four instances of each are listed rather than instance 0
-           alone. -->
+           alone. An empty list is not the short form of this one: the plugin
+           then lifts every link in the world, the ground plane included. -->
       <enable>airship_vectored_independent::base_link</enable>
       <enable>airship_vectored_independent_0::base_link</enable>
       <enable>airship_vectored_independent_1::base_link</enable>

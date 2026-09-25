@@ -4,11 +4,10 @@
   collective and a single servo vectors it; a reversible tail thruster does
   yaw. That is the airframe the flight side already flies
   (init.d/airframes/2507_cloudship: CA_AIRFRAME 16, CA_AIRSHIP_GRP 0,
-  CA_AIRSHIP_TAIL 1), and until now it had no simulator: the posix 2507 is
-  upstream's gazebo-classic one, still on the old CA_AIRFRAME 9 rotor
-  geometry, and gazebo-classic is not installed here. So this is the first
-  plant the collective-and-tail path of the airship allocator can be flown
-  against.
+  CA_AIRSHIP_TAIL 1), and it had no gz simulator: the posix gazebo-classic
+  Cloudship (2519) is still on the old CA_AIRFRAME 9 rotor geometry. So this
+  is the first plant the collective-and-tail path of the airship allocator
+  can be flown against.
 
   Every length and mass is the gazebo-classic model's own measurement
   (models/cloudship/cloudship.sdf.jinja): a 4.7 x 1.6 m hull of 5.97 m^3 with
