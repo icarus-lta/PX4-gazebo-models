@@ -3,8 +3,8 @@
   The vectored airship with the hull's fluid added mass and nothing else: the
   propulsion block of airship_vectored_independent, restated on airship_base_am
   instead of airship_base, because <fluid_added_mass> lives in base_link's
-  <inertial> and only a copy of the base can carry it. variant_check.py holds
-  this block identical to the bare model's. The engine folds the added mass
+  <inertial>, which a plain merge include cannot change. The block is kept
+  identical to the bare model's. The engine folds the added mass
   into the spatial inertia, Coriolis terms and all, so this plant carries the
   Munk moment: a hull that slips sideways is turned further sideways, and
   nothing here opposes it. It exists to measure that term on its own.

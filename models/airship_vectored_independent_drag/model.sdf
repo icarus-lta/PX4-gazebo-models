@@ -15,13 +15,16 @@
 
   The dimensionless coefficients are the airship-control-design reference set
   (c_d 0.08906 axial, c_lat 3.08324 lateral, c_lp_lin 0.04 and c_lp_quad 0.18
-  roll, c_mq = c_nr 1.2 pitch and yaw). The reference area and length are this
-  hull's, not that design's, and the fluid is air at rho = 1.225 kg/m^3
-  despite the plugin's name: this is a 10.5 x 2.5 m hull, so the frontal
-  reference radius scales with the half-height to 1.16068 m (A = 4.2323 m^2)
-  and the rotational scale is 0.5 * rho * S * L^3 * 0.003438 with S = 66.2984
-  m^2 and L = 10.5 m, giving 161.6154 N m. Translational terms are then
-  -0.5 * rho * A * c, rotational terms -161.6154 * c.
+  roll, c_mq = c_nr 1.2 pitch and yaw) on an 8.3534 x 2.3693 m hull. The fluid
+  is air at rho = 1.225 kg/m^3 despite the plugin's name. On this hull,
+  airship_base's 10.97 x 2.61 m spheroid, the frontal reference radius scales
+  with the half-height to 1.21279 m (A = 4.6208 m^2); the lateral coefficient
+  is crossflow drag, which scales with the planform, so it also takes the
+  fineness ratio (4.2 / 3.526, x 1.1913); the axial one takes Hoerner's
+  fineness dependence of a streamlined body's frontal drag (x 1.0902); and the
+  rotational scale is 0.5 * rho * S * L^3 * 0.003438 with S = 72.3849 m^2 and
+  L = 10.9714 m, giving 201.3011 N m. Translational terms are then
+  -0.5 * rho * A * c times those factors, rotational terms -201.3011 * c.
 
   The plugin applies its wrench at the link origin (gz::sim::Link has an
   offset form, but Hydrodynamics calls the two-argument AddWorldWrench, which
@@ -43,20 +46,23 @@
   drag itself, its rate term on the force, its arm on the couple, and that
   arm's rate term. The arm pair is what stops forward flight pitching the nose
   down. The rate terms are what stop the hull rolling itself apart: without
-  kPabsV the roll damping changes sign above 0.4 m/s of sideslip and settles
-  into a 6 deg limit cycle.
+  both of them the roll moment per unit rate about the centre of mass is
+  -8.05 + 20.9 |v| N m/(rad/s), which stops damping above 0.38 m/s of sideslip
+  (on the earlier hull's coefficients that settled into a 6 deg limit cycle),
+  and without kPabsV alone it is -8.05 + 55.8 |v|, which stops damping above
+  0.14 m/s.
 
   One term of the shift has no home in this plugin's grammar, a squared rate
   that follows the sign of the velocity rather than of the rate. At the center
-  of mass it is worth 3.0 N of sway and 3.7 N m of roll at 0.3 rad/s against
-  578 N m/rad of restoring, and it falls away with the rate. The expansion
+  of mass it is worth 3.9 N of sway and 4.8 N m of roll at 0.3 rad/s against
+  576 N m/rad of restoring, and it falls away with the rate. The expansion
   behind all of it holds while the rate-induced velocity stays under the
   velocity itself. Past that, which is near-still air, these terms overshoot
-  rather than reverse: in still air the hull's own contribution to roll
-  damping reads 26.4 N m/(rad/s)^2 where it should read 15.1, so the total
-  with kPabsP comes out 55.5 against 44.2, a quarter high and on the safe
-  side. The rotational damping is a pure couple, equal about every point and
-  untouched by any of this.
+  rather than reverse: in still air the hull's own contribution to roll damping
+  reads 34.4 N m/(rad/s)^2 where it should read 19.5, so the total with kPabsP
+  comes out 70.6 against 55.7, a quarter high and on the safe side. The
+  rotational damping is a pure couple, equal about every point and untouched by
+  any of this.
 -->
 <sdf version="1.10">
   <model name="airship_vectored_independent_drag">
@@ -66,15 +72,15 @@
     <plugin filename="gz-sim-hydrodynamics-system" name="gz::sim::systems::Hydrodynamics">
       <link_name>base_link</link_name>
       <!-- Quadratic drag [N/(m/s)^2] -->
-      <xUabsU>-0.2309</xUabsU>
-      <yVabsV>-7.9926</yVabsV>
-      <zWabsW>-7.9926</zWabsW>
+      <xUabsU>-0.2748</xUabsU>
+      <yVabsV>-10.3954</yVabsV>
+      <zWabsW>-10.3954</zWabsW>
       <!-- Rotational damping [N m/(rad/s)^2], with the linear roll term the
            very lightly damped roll mode needs [N m/(rad/s)] -->
-      <kP>-6.4646</kP>
-      <kPabsP>-29.0908</kPabsP>
-      <mQabsQ>-193.9384</mQabsQ>
-      <nRabsR>-193.9384</nRabsR>
+      <kP>-8.0520</kP>
+      <kPabsP>-36.2342</kPabsP>
+      <mQabsQ>-241.5613</mQabsQ>
+      <nRabsR>-241.5613</nRabsR>
       <!-- The same two drags written about the link origin, h = 2.05 m below
            the hull axis they act on. Surge and pitch, from u_hull = u + h q
            and M_y = +h F_x; sway and roll, from v_hull = v - h p and
@@ -85,12 +91,12 @@
              mQabsU = 2h^2* xUabsU   kPabsV = 2h^2 * yVabsV   [N m/(rad/s)/(m/s)]
            Heave has no row of its own: its line of action runs through both
            points, and no rate changes it, because d is along it. -->
-      <xQabsU>-0.9467</xQabsU>
-      <yPabsV>32.7697</yPabsV>
-      <mUabsU>-0.4733</mUabsU>
-      <mQabsU>-1.9407</mQabsU>
-      <kVabsV>16.3848</kVabsV>
-      <kPabsV>-67.1778</kPabsV>
+      <xQabsU>-1.1267</xQabsU>
+      <yPabsV>42.6210</yPabsV>
+      <mUabsU>-0.5634</mUabsU>
+      <mQabsU>-2.3098</mQabsU>
+      <kVabsV>21.3105</kVabsV>
+      <kPabsV>-87.3731</kPabsV>
       <!-- Inert while no xDot* term is set, and kept for when one is: it is
            also what tells the plugin to stand back if the link ever gains a
            <fluid_added_mass>, which it would otherwise double-count. -->

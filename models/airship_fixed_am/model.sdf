@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   The fixed-thruster airship with the hull's fluid added mass: the propulsion
-  and flap block of airship_fixed, restated on airship_base_am, held identical
-  to airship_fixed's by variant_check.py. The fins are sized against the Munk
-  moment this plant carries.
+  and flap block of airship_fixed, restated on airship_base_am and kept
+  identical to airship_fixed's. The fins are sized against the Munk moment
+  this plant carries.
 -->
 <sdf version="1.10">
   <model name="airship_fixed_am">
@@ -13,12 +13,12 @@
     <!-- Two fixed forward thrusters at the pod stations of the vectored
          airship: its pod and prop links verbatim, the tilt joints replaced by
          fixed mounts. The pod links stay because they carry the mount's mass:
-         the hull's buoyancy box is sized for the family's 49.0 kg, and without
-         them the vehicle is 0.8 kg light and rises at 0.16 m/s^2 with nothing
-         to stop it. 0.398 kg each, so that with the four flap links' 0.001 kg
-         the total is the vectored airship's 49.0 kg. Prop links are pitched
-         90 deg so link +Z, the motor plugin's thrust axis, points forward.
-         18 N each at 300 rad/s. -->
+         the collision volumes' 40 m^3 (hull 39.2, gondola 0.8) lift the
+         family's 49.0 kg, and without them the vehicle is 0.8 kg light and
+         rises at 0.16 m/s^2 with nothing to stop it. 0.398 kg each, so that
+         with the four flap links' 0.001 kg the total is the vectored airship's
+         49.0 kg. Prop links are pitched 90 deg so link +Z, the motor plugin's
+         thrust axis, points forward. 18 N each at 300 rad/s. -->
     <link name="pod_starboard">
       <pose>0 -1.5 0.8125 0 0 0</pose>
       <inertial>
@@ -187,9 +187,9 @@
       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
       <motorType>velocity</motorType>
     </plugin>
-    <!-- The four flaps: 30 % of the fin chord, hinged at x = -4.65, massless
-         links on revolute joints the way rc_cessna's surfaces are, each
-         driven by a JointPositionController on the servo topic the 2500
+    <!-- The four flaps: 30 % of the fin chord (0.36 m), hinged at x = -4.8257,
+         massless links on revolute joints the way rc_cessna's surfaces are,
+         each driven by a JointPositionController on the servo topic the 2500
          airframe's output order gives it: Servo1 right elevator (starboard
          horizontal fin), Servo2 left elevator, Servo3 upper rudder, Servo4
          lower rudder. Elevator hinges are the y axis (a positive angle lifts
@@ -197,13 +197,15 @@
          pitch), rudder hinges the z axis (a positive angle swings the trailing
          edge to starboard, lift goes to port, the nose to starboard: PX4's
          positive yaw), and the fin plugins below carry the matching signs on
-         control_joint_rad_to_cl. Limits +-25 deg. The flap box is drawn over
-         the aft 30 % of the fixed fin box, which a merge include cannot
-         shorten, so it is 0.04 m thick against the fin's 0.03: at rest its
-         faces are not coplanar with the fin's, and at a deflection the GUI
-         shows both. Visual only; the lift-drag plugins read the joint. -->
+         control_joint_rad_to_cl. Limits +-11 deg, the most that keeps a
+         full-rudder turn on the added-mass plants 2 deg below the fins' stall
+         (airship_base's header). The flap box is drawn over the aft 30 % of
+         the fixed fin box, which a merge include cannot shorten, so it is 0.04
+         m thick against the fin's 0.03: at rest its faces are not coplanar
+         with the fin's, and at a deflection the GUI shows both. Visual only;
+         the lift-drag plugins read the joint. -->
     <link name="flap_port">
-      <pose>-4.65 1.363 2.050 0 0 0</pose>
+      <pose>-4.8257 1.4768 2.0500 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -213,13 +215,15 @@
         </inertia>
       </inertial>
       <visual name="flap_port_visual">
-        <pose>-0.150 0 0 0 0 0</pose>
+        <pose>-0.180 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.30 1.40 0.04</size>
+            <size>0.36 1.52 0.04</size>
           </box>
         </geometry>
         <material>
+          <ambient>0.45 0.15 0.15 1</ambient>
+          <diffuse>0.45 0.15 0.15 1</diffuse>
         </material>
       </visual>
     </link>
@@ -229,8 +233,8 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit>
-          <lower>-0.4363</lower>
-          <upper>0.4363</upper>
+          <lower>-0.1920</lower>
+          <upper>0.1920</upper>
         </limit>
         <dynamics>
           <damping>0.5</damping>
@@ -246,7 +250,7 @@
       <d_gain>0</d_gain>
     </plugin>
     <link name="flap_starboard">
-      <pose>-4.65 -1.363 2.050 0 0 0</pose>
+      <pose>-4.8257 -1.4768 2.0500 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -256,13 +260,15 @@
         </inertia>
       </inertial>
       <visual name="flap_starboard_visual">
-        <pose>-0.150 0 0 0 0 0</pose>
+        <pose>-0.180 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.30 1.40 0.04</size>
+            <size>0.36 1.52 0.04</size>
           </box>
         </geometry>
         <material>
+          <ambient>0.45 0.15 0.15 1</ambient>
+          <diffuse>0.45 0.15 0.15 1</diffuse>
         </material>
       </visual>
     </link>
@@ -272,8 +278,8 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit>
-          <lower>-0.4363</lower>
-          <upper>0.4363</upper>
+          <lower>-0.1920</lower>
+          <upper>0.1920</upper>
         </limit>
         <dynamics>
           <damping>0.5</damping>
@@ -289,7 +295,7 @@
       <d_gain>0</d_gain>
     </plugin>
     <link name="flap_top">
-      <pose>-4.65 0.000 3.413 0 0 0</pose>
+      <pose>-4.8257 0.0000 3.5268 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -299,13 +305,15 @@
         </inertia>
       </inertial>
       <visual name="flap_top_visual">
-        <pose>-0.150 0 0 0 0 0</pose>
+        <pose>-0.180 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.30 0.04 1.40</size>
+            <size>0.36 0.04 1.52</size>
           </box>
         </geometry>
         <material>
+          <ambient>0.45 0.15 0.15 1</ambient>
+          <diffuse>0.45 0.15 0.15 1</diffuse>
         </material>
       </visual>
     </link>
@@ -315,8 +323,8 @@
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
-          <lower>-0.4363</lower>
-          <upper>0.4363</upper>
+          <lower>-0.1920</lower>
+          <upper>0.1920</upper>
         </limit>
         <dynamics>
           <damping>0.5</damping>
@@ -332,7 +340,7 @@
       <d_gain>0</d_gain>
     </plugin>
     <link name="flap_bottom">
-      <pose>-4.65 0.000 0.687 0 0 0</pose>
+      <pose>-4.8257 0.0000 0.6932 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -342,13 +350,15 @@
         </inertia>
       </inertial>
       <visual name="flap_bottom_visual">
-        <pose>-0.150 0 0 0 0 0</pose>
+        <pose>-0.180 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.30 0.04 1.40</size>
+            <size>0.36 0.04 1.28</size>
           </box>
         </geometry>
         <material>
+          <ambient>0.45 0.15 0.15 1</ambient>
+          <diffuse>0.45 0.15 0.15 1</diffuse>
         </material>
       </visual>
     </link>
@@ -358,8 +368,8 @@
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
-          <lower>-0.4363</lower>
-          <upper>0.4363</upper>
+          <lower>-0.1920</lower>
+          <upper>0.1920</upper>
         </limit>
         <dynamics>
           <damping>0.5</damping>
@@ -375,113 +385,114 @@
       <d_gain>0</d_gain>
     </plugin>
     <!-- The four fins as lifting surfaces WITH their flaps: the same four
-         lift-drag plugins as the _fin members, each naming its flap joint, with
-         d(cl)/d(delta) = 2.466 per rad: thin-airfoil flap effectiveness
-         0.661 at 30 % chord, times the ~0.8 viscous factor Caughey's "nearly
-         50 percent for a 25 percent chord flap" implies, times the wing-alone
-         slope 3.665, times K_W(B) = 1.273 rather than the full angle-of-attack
-         carryover, since a deflected panel on a body at zero angle of attack
-         gets NACA 1307's incidence factors k_W(B) + k_B(W), which slender-body
-         theory puts at K_W(B). This vehicle's fins are its actuators, so they are in the
-         bare model and it has no _fin member. Otherwise on the planform
-         airship_base draws and its header sizes. The
-         plugin reads the velocity at <cp> (worldLinVel + worldAngVel x cp)
-         and applies the force there, so no arm terms are needed.
-         Basis: exposed panel 1.00 x 1.40 m, area 1.40 m^2; the two panels
-         joined through the hull have AR 2.80 and the slope 2 pi AR / (AR + 2)
-         = 3.665 per rad, which is what thin flat plates of AR 2-3 measure at
-         this Reynolds number (Ananda, Sukumar and Selig 2015; NACA Report
-         1307 asks for the experimental wing-alone slope, and Helmbold's
-         3.233 fits AR 4-5 wings, not these plates); times the slender-body
-         carryover K_W(B) + K_B(W) = (1 + r/s)^2 with r 0.663 (hull radius at
-         the mid-chord station) and s 2.063 (root plus span), 1.746 (NACA
-         1307 eqs. 14 and 21, the values it recommends for all combinations),
-         so cla = 6.400 per rad on the exposed area. cp at the quarter chord
-         (x = -4.20) on the span centre. <upward> is the lift direction,
-         normal to the fin's plane. Drag is the plugin's linear-in-alpha form,
-         cda sized to the induced drag CL^2 / (pi AR e) at 10 deg with e = 0.9.
-         A rectangular plate of this aspect ratio stalls near 15 deg, so
-         alpha_stall 0.3 rad (cl 1.9), falling past it to a plate's ~0.2 at
-         90 deg. The fins' own added mass (about a quarter of the hull's yaw
-         and pitch added inertia) is not modelled. All of it is an
-         estimate with a stated basis, not a measurement. The plugin applies
-         nothing when the flow at cp comes from behind (forward . v <= 0),
-         so these fins are absent in reverse flight and pure lateral drift. -->
+         lift-drag plugins as the _fin members, each naming its flap joint,
+         with d(cl)/d(delta) = 2.361 per rad on the dorsal and side fins and
+         2.244 on the ventral: thin-airfoil flap effectiveness 0.661 at 30 %
+         chord, times the ~0.8 viscous factor Caughey's "nearly 50 percent for
+         a 25 percent chord flap" implies, times the wing-alone slope, times
+         K_W(B) rather than the full angle-of-attack carryover, since a
+         deflected panel on a body at zero angle of attack gets NACA 1307's
+         incidence factors k_W(B) + k_B(W), which slender-body theory puts at
+         K_W(B). Linear over the +-11 deg the flaps travel. This vehicle's fins
+         are its actuators, so they are in the bare model and it has no _fin
+         member. The plugin reads the velocity at <cp>
+         (worldLinVel + worldAngVel x cp) and applies the force there, so no
+         arm terms are needed. Basis, per fin: a 1.20 m chord; the dorsal and
+         side fins 1.52 m of exposed span, the ventral 1.28 m. Each fin with
+         its mirror image has AR_j = 2 span / chord (2.533 and 2.133), the
+         flat-plate slope 2 pi AR / (AR + 2) (3.511 and 3.243 per rad; Ananda,
+         Sukumar and Selig 2015, a secant to about 10 deg), times the
+         slender-body carryover (1 + r/s)^2 with r the hull radius at the
+         mid-chord station (0.7168) and s the root plus the span (2.237 and
+         1.997; NACA Report 1307 eqs. 14 and 21): cla = 6.122 and 5.989 per rad
+         on the exposed area. cp at the quarter chord (x = -4.2857) on each
+         fin's span centre. <upward> is the lift direction, normal to the fin's
+         plane. Drag is the plugin's linear-in-alpha form, cda sized to the
+         induced drag CL^2 / (pi AR e) at 10 deg with e = 0.9. A fin stalls
+         where its own incidence, the body angle times the hull's upwash K_W(B)
+         (1.272 and 1.309), reaches the plates' CLmax of 0.7, the top of the
+         0.55-0.7 the same data measured: alpha_stall 0.1567 and 0.1649 rad of
+         body angle. Past it cl falls to 0 and cd rises to a broadside plate's
+         1.2 at 90 deg. The plugin stalls on the geometric incidence alone and
+         applies nothing when the flow at cp comes from behind
+         (forward . v <= 0), so these fins are absent in reverse flight and
+         pure lateral drift. The fins' own added mass is not modelled. All of
+         it is an estimate with a stated basis, not a measurement. -->
     <plugin filename="gz-sim-lift-drag-system" name="gz::sim::systems::LiftDrag">
       <!-- fin_port -->
       <link_name>base_link</link_name>
       <air_density>1.225</air_density>
-      <cp>-4.200 1.363 2.050</cp>
+      <cp>-4.2857 1.4768 2.0500</cp>
       <forward>1 0 0</forward>
       <upward>0 0 1</upward>
-      <area>1.40</area>
+      <area>1.824</area>
       <a0>0</a0>
-      <cla>6.400</cla>
-      <cda>0.903</cda>
+      <cla>6.122</cla>
+      <cda>0.9133</cda>
       <cma>0</cma>
-      <alpha_stall>0.3</alpha_stall>
-      <cla_stall>-1.35</cla_stall>
-      <cda_stall>1.2</cda_stall>
+      <alpha_stall>0.1567</alpha_stall>
+      <cla_stall>-0.6785</cla_stall>
+      <cda_stall>0.7474</cda_stall>
       <cma_stall>0</cma_stall>
       <control_joint_name>flap_port_joint</control_joint_name>
-      <control_joint_rad_to_cl>-2.466</control_joint_rad_to_cl>
+      <control_joint_rad_to_cl>-2.361</control_joint_rad_to_cl>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system" name="gz::sim::systems::LiftDrag">
       <!-- fin_starboard -->
       <link_name>base_link</link_name>
       <air_density>1.225</air_density>
-      <cp>-4.200 -1.363 2.050</cp>
+      <cp>-4.2857 -1.4768 2.0500</cp>
       <forward>1 0 0</forward>
       <upward>0 0 1</upward>
-      <area>1.40</area>
+      <area>1.824</area>
       <a0>0</a0>
-      <cla>6.400</cla>
-      <cda>0.903</cda>
+      <cla>6.122</cla>
+      <cda>0.9133</cda>
       <cma>0</cma>
-      <alpha_stall>0.3</alpha_stall>
-      <cla_stall>-1.35</cla_stall>
-      <cda_stall>1.2</cda_stall>
+      <alpha_stall>0.1567</alpha_stall>
+      <cla_stall>-0.6785</cla_stall>
+      <cda_stall>0.7474</cda_stall>
       <cma_stall>0</cma_stall>
       <control_joint_name>flap_starboard_joint</control_joint_name>
-      <control_joint_rad_to_cl>-2.466</control_joint_rad_to_cl>
+      <control_joint_rad_to_cl>-2.361</control_joint_rad_to_cl>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system" name="gz::sim::systems::LiftDrag">
       <!-- fin_top -->
       <link_name>base_link</link_name>
       <air_density>1.225</air_density>
-      <cp>-4.200 0.000 3.413</cp>
+      <cp>-4.2857 0.0000 3.5268</cp>
       <forward>1 0 0</forward>
       <upward>0 1 0</upward>
-      <area>1.40</area>
+      <area>1.824</area>
       <a0>0</a0>
-      <cla>6.400</cla>
-      <cda>0.903</cda>
+      <cla>6.122</cla>
+      <cda>0.9133</cda>
       <cma>0</cma>
-      <alpha_stall>0.3</alpha_stall>
-      <cla_stall>-1.35</cla_stall>
-      <cda_stall>1.2</cda_stall>
+      <alpha_stall>0.1567</alpha_stall>
+      <cla_stall>-0.6785</cla_stall>
+      <cda_stall>0.7474</cda_stall>
       <cma_stall>0</cma_stall>
       <control_joint_name>flap_top_joint</control_joint_name>
-      <control_joint_rad_to_cl>2.466</control_joint_rad_to_cl>
+      <control_joint_rad_to_cl>2.361</control_joint_rad_to_cl>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system" name="gz::sim::systems::LiftDrag">
       <!-- fin_bottom -->
       <link_name>base_link</link_name>
       <air_density>1.225</air_density>
-      <cp>-4.200 0.000 0.687</cp>
+      <cp>-4.2857 0.0000 0.6932</cp>
       <forward>1 0 0</forward>
       <upward>0 1 0</upward>
-      <area>1.40</area>
+      <area>1.536</area>
       <a0>0</a0>
-      <cla>6.400</cla>
-      <cda>0.903</cda>
+      <cla>5.989</cla>
+      <cda>1.0379</cda>
       <cma>0</cma>
-      <alpha_stall>0.3</alpha_stall>
-      <cla_stall>-1.35</cla_stall>
-      <cda_stall>1.2</cda_stall>
+      <alpha_stall>0.1649</alpha_stall>
+      <cla_stall>-0.7024</cla_stall>
+      <cda_stall>0.7318</cda_stall>
       <cma_stall>0</cma_stall>
       <control_joint_name>flap_bottom_joint</control_joint_name>
-      <control_joint_rad_to_cl>2.466</control_joint_rad_to_cl>
+      <control_joint_rad_to_cl>2.244</control_joint_rad_to_cl>
     </plugin>
   </model>
 </sdf>

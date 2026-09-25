@@ -12,15 +12,15 @@
     <plugin filename="gz-sim-hydrodynamics-system" name="gz::sim::systems::Hydrodynamics">
       <link_name>base_link</link_name>
       <!-- Quadratic drag [N/(m/s)^2] -->
-      <xUabsU>-0.2309</xUabsU>
-      <yVabsV>-7.9926</yVabsV>
-      <zWabsW>-7.9926</zWabsW>
+      <xUabsU>-0.2748</xUabsU>
+      <yVabsV>-10.3954</yVabsV>
+      <zWabsW>-10.3954</zWabsW>
       <!-- Rotational damping [N m/(rad/s)^2], with the linear roll term the
            very lightly damped roll mode needs [N m/(rad/s)] -->
-      <kP>-6.4646</kP>
-      <kPabsP>-29.0908</kPabsP>
-      <mQabsQ>-193.9384</mQabsQ>
-      <nRabsR>-193.9384</nRabsR>
+      <kP>-8.0520</kP>
+      <kPabsP>-36.2342</kPabsP>
+      <mQabsQ>-241.5613</mQabsQ>
+      <nRabsR>-241.5613</nRabsR>
       <!-- The same two drags written about the link origin, h = 2.05 m below
            the hull axis they act on. Surge and pitch, from u_hull = u + h q
            and M_y = +h F_x; sway and roll, from v_hull = v - h p and
@@ -31,12 +31,12 @@
              mQabsU = 2h^2* xUabsU   kPabsV = 2h^2 * yVabsV   [N m/(rad/s)/(m/s)]
            Heave has no row of its own: its line of action runs through both
            points, and no rate changes it, because d is along it. -->
-      <xQabsU>-0.9467</xQabsU>
-      <yPabsV>32.7697</yPabsV>
-      <mUabsU>-0.4733</mUabsU>
-      <mQabsU>-1.9407</mQabsU>
-      <kVabsV>16.3848</kVabsV>
-      <kPabsV>-67.1778</kPabsV>
+      <xQabsU>-1.1267</xQabsU>
+      <yPabsV>42.6210</yPabsV>
+      <mUabsU>-0.5634</mUabsU>
+      <mQabsU>-2.3098</mQabsU>
+      <kVabsV>21.3105</kVabsV>
+      <kPabsV>-87.3731</kPabsV>
       <!-- Inert while no xDot* term is set, and kept for when one is: it is
            also what tells the plugin to stand back if the link ever gains a
            <fluid_added_mass>, which it would otherwise double-count. -->
