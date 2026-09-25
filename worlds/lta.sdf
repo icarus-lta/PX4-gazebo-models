@@ -212,6 +212,26 @@
       <enable>airship_vectored_independent_am_fin_drag_1::base_link</enable>
       <enable>airship_vectored_independent_am_fin_drag_2::base_link</enable>
       <enable>airship_vectored_independent_am_fin_drag_3::base_link</enable>
+      <enable>airship_fixed::base_link</enable>
+      <enable>airship_fixed_0::base_link</enable>
+      <enable>airship_fixed_1::base_link</enable>
+      <enable>airship_fixed_2::base_link</enable>
+      <enable>airship_fixed_3::base_link</enable>
+      <enable>airship_fixed_drag::base_link</enable>
+      <enable>airship_fixed_drag_0::base_link</enable>
+      <enable>airship_fixed_drag_1::base_link</enable>
+      <enable>airship_fixed_drag_2::base_link</enable>
+      <enable>airship_fixed_drag_3::base_link</enable>
+      <enable>airship_fixed_am::base_link</enable>
+      <enable>airship_fixed_am_0::base_link</enable>
+      <enable>airship_fixed_am_1::base_link</enable>
+      <enable>airship_fixed_am_2::base_link</enable>
+      <enable>airship_fixed_am_3::base_link</enable>
+      <enable>airship_fixed_am_drag::base_link</enable>
+      <enable>airship_fixed_am_drag_0::base_link</enable>
+      <enable>airship_fixed_am_drag_1::base_link</enable>
+      <enable>airship_fixed_am_drag_2::base_link</enable>
+      <enable>airship_fixed_am_drag_3::base_link</enable>
       <enable>cloudship::base_link</enable>
       <enable>cloudship_0::base_link</enable>
       <enable>cloudship_1::base_link</enable>
