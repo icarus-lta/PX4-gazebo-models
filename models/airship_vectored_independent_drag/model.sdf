@@ -10,7 +10,8 @@
   explicit force, and at an airship's ratios (the hull's added sway mass is of
   the order of its dry mass) that diverges within a fraction of a second. Added
   mass belongs in the link's <fluid_added_mass>, which the physics engine folds
-  into the spatial inertia, and is not modeled yet.
+  into the spatial inertia: airship_base_am carries it, and
+  airship_vectored_independent_am_fin_drag has both.
 
   The dimensionless coefficients are the airship-control-design reference set
   (c_d 0.08906 axial, c_lat 3.08324 lateral, c_lp_lin 0.04 and c_lp_quad 0.18

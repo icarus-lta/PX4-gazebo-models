@@ -192,6 +192,26 @@
       <enable>airship_vectored_independent_drag_1::base_link</enable>
       <enable>airship_vectored_independent_drag_2::base_link</enable>
       <enable>airship_vectored_independent_drag_3::base_link</enable>
+      <enable>airship_vectored_independent_fin::base_link</enable>
+      <enable>airship_vectored_independent_fin_0::base_link</enable>
+      <enable>airship_vectored_independent_fin_1::base_link</enable>
+      <enable>airship_vectored_independent_fin_2::base_link</enable>
+      <enable>airship_vectored_independent_fin_3::base_link</enable>
+      <enable>airship_vectored_independent_am::base_link</enable>
+      <enable>airship_vectored_independent_am_0::base_link</enable>
+      <enable>airship_vectored_independent_am_1::base_link</enable>
+      <enable>airship_vectored_independent_am_2::base_link</enable>
+      <enable>airship_vectored_independent_am_3::base_link</enable>
+      <enable>airship_vectored_independent_am_fin::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_0::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_1::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_2::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_3::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_drag::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_drag_0::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_drag_1::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_drag_2::base_link</enable>
+      <enable>airship_vectored_independent_am_fin_drag_3::base_link</enable>
       <enable>cloudship::base_link</enable>
       <enable>cloudship_0::base_link</enable>
       <enable>cloudship_1::base_link</enable>
