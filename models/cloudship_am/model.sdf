@@ -32,14 +32,14 @@
 
   This is cloudship with fluid added mass and nothing else, and it is a
   full copy of that file rather than a merge include of it, because
-  <fluid_added_mass> is a property of base_link's <inertial> and a merge
-  include can only add elements to a model, never modify a link it already
-  defines. The copy differs from cloudship by that one block, its model name
-  and this paragraph, and variant_check.py holds it to that. The fluid
+  <fluid_added_mass> is a property of base_link's <inertial>, which a plain
+  merge include cannot change. The copy differs from cloudship by that one
+  block, its model name and this paragraph; an edit to either file belongs in
+  both. The fluid
   physics come as variants named by what they add, in a fixed order:
     cloudship_am            fluid added mass (a full copy: <fluid_added_mass>
-                            lives in the link's <inertial>, which a merge
-                            include cannot reach)
+                            lives in the link's <inertial>, which a plain
+                            merge include cannot change)
     cloudship_fin           fin lift, four lift-drag plugins
     cloudship_drag          hull drag and rotational damping
     cloudship_am_fin        added mass and fins together: added mass brings
@@ -48,8 +48,8 @@
   Every variant but _am is a thin merge include of the model with one token
   fewer (cloudship_fin and cloudship_drag wrap cloudship, cloudship_am_fin
   wraps cloudship_am, cloudship_am_fin_drag wraps cloudship_am_fin), so the
-  vehicle is written in cloudship and once more in this copy, which
-  variant_check.py holds equal to that file; the drag block is written once,
+  vehicle is written in cloudship and once more in this copy, kept equal to
+  that file; the drag block is written once,
   in cloudship_drag, and the fin block once more than that, in the two _fin
   variants, held identical the same way.
   The thruster assembly's 0.30 kg comes out of the gondola's 3.3, which is

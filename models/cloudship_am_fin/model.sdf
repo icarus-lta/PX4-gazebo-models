@@ -5,9 +5,11 @@
   pair that belongs together. Added mass brings the Munk moment, the
   destabilising couple (m_y - m_x) u v that makes a bare hull want to fly
   sideways, and the fins are the only thing on this hull that opposes it.
-  By the drawing they restore half of it at every speed (2.5 against
-  4.92 N m per (m/s)^2 of u v on the family's basis, both scaling with
-  V^2), which this model exists to show rather than hide.
+  By the drawing they restore half of it at every speed on the plate slope
+  the plugins carry (2.5 against 4.92 N m per (m/s)^2 of u v, both scaling
+  with V^2), and 0.41 of it on the attached-flow slope (Helmbold's) the
+  generic airship's tail is judged on. This model exists to show that
+  shortfall rather than hide it.
 -->
 <sdf version="1.10">
   <model name="cloudship_am_fin">
@@ -34,12 +36,12 @@
          <upward> is the lift direction, normal to the fin's plane: y for the
          two vertical fins, z for the two horizontal ones. Drag is the
          plugin's linear-in-alpha form, cda sized to the induced drag
-         CL^2 / (pi AR_j e) at 10 deg with e = 0.9. The carryover is a
-         small-angle result and a plate of this aspect ratio tops out near
-         cl 1.2-1.3 on its own area, about 3 with the hull's share, so the
-         linear range ends at alpha_stall 0.35 rad (cl 2.5) and falls at 1.9
-         per rad past it to a flat plate's ~0.2 at 90 deg, with the
-         post-stall drag slope putting cd near 1.2-1.3 there.
+         CL^2 / (pi AR_j e) at 10 deg with e = 0.9. A plate of this aspect
+         ratio tops out near cl 1.2-1.3 on its own area (Torres and Mueller's
+         low-AR plates), and the panel's own incidence is the body angle
+         times the hull's upwash K_W(B) 1.545, so the linear range ends at
+         1.25 / (2.866 x 1.545) = 0.2822 rad of body angle. Past it cl falls
+         to 0 and cd rises to a broadside plate's 1.2 at 90 deg.
          All of it is an estimate with a stated basis, not a measurement.
          One thing the plugin does that the geometry does not: it applies
          nothing when the flow at cp comes from behind (forward . v <= 0),
@@ -57,9 +59,9 @@
       <cla>7.254</cla>
       <cda>1.94</cda>
       <cma>0</cma>
-      <alpha_stall>0.35</alpha_stall>
-      <cla_stall>-1.92</cla_stall>
-      <cda_stall>1.2</cda_stall>
+      <alpha_stall>0.2822</alpha_stall>
+      <cla_stall>-1.5888</cla_stall>
+      <cda_stall>0.5064</cda_stall>
       <cma_stall>0</cma_stall>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system" name="gz::sim::systems::LiftDrag">
@@ -74,9 +76,9 @@
       <cla>7.254</cla>
       <cda>1.94</cda>
       <cma>0</cma>
-      <alpha_stall>0.35</alpha_stall>
-      <cla_stall>-1.92</cla_stall>
-      <cda_stall>1.2</cda_stall>
+      <alpha_stall>0.2822</alpha_stall>
+      <cla_stall>-1.5888</cla_stall>
+      <cda_stall>0.5064</cda_stall>
       <cma_stall>0</cma_stall>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system" name="gz::sim::systems::LiftDrag">
@@ -91,9 +93,9 @@
       <cla>7.254</cla>
       <cda>1.94</cda>
       <cma>0</cma>
-      <alpha_stall>0.35</alpha_stall>
-      <cla_stall>-1.92</cla_stall>
-      <cda_stall>1.2</cda_stall>
+      <alpha_stall>0.2822</alpha_stall>
+      <cla_stall>-1.5888</cla_stall>
+      <cda_stall>0.5064</cda_stall>
       <cma_stall>0</cma_stall>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system" name="gz::sim::systems::LiftDrag">
@@ -108,9 +110,9 @@
       <cla>7.254</cla>
       <cda>1.94</cda>
       <cma>0</cma>
-      <alpha_stall>0.35</alpha_stall>
-      <cla_stall>-1.92</cla_stall>
-      <cda_stall>1.2</cda_stall>
+      <alpha_stall>0.2822</alpha_stall>
+      <cla_stall>-1.5888</cla_stall>
+      <cda_stall>0.5064</cda_stall>
       <cma_stall>0</cma_stall>
     </plugin>
   </model>

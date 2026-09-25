@@ -34,8 +34,8 @@
   keeps accelerating it and nothing damps a rotation. The fluid physics come
   as variants named by what they add, in a fixed order:
     cloudship_am            fluid added mass (a full copy: <fluid_added_mass>
-                            lives in the link's <inertial>, which a merge
-                            include cannot reach)
+                            lives in the link's <inertial>, which a plain
+                            merge include cannot change)
     cloudship_fin           fin lift, four lift-drag plugins
     cloudship_drag          hull drag and rotational damping
     cloudship_am_fin        added mass and fins together: added mass brings
@@ -44,8 +44,8 @@
   Every variant but _am is a thin merge include of the model with one token
   fewer (cloudship_fin and cloudship_drag wrap cloudship, cloudship_am_fin
   wraps cloudship_am, cloudship_am_fin_drag wraps cloudship_am_fin), so the
-  vehicle is written here and once more in the _am copy, which
-  variant_check.py holds equal to this file; the drag block is written once,
+  vehicle is written here and once more in the _am copy, kept equal to this
+  file; the drag block is written once,
   in cloudship_drag, and the fin block once more than that, in the two _fin
   variants, held identical the same way.
 
