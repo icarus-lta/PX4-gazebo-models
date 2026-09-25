@@ -16,17 +16,27 @@
          and applies the force there (torque + cp x force), so no arm terms
          are needed and nothing here touches a link.
          Planform from the drawing: 0.465 m chord x 0.39 m span, area
-         0.18135 m^2, aspect ratio 0.839, so an isolated-wing lift slope
-         2 pi AR / (AR + 2) = 1.856 per rad; that is generous for a fin in a
-         hull's flow and is the stated basis, not a measurement. cp at the
-         quarter chord (x = -1.6475 + 0.465 / 4) on each fin's span centre.
+         0.18135 m^2. Basis (the same for every fin in the family): the two
+         panels joined through the hull have AR 1.677 and the slope
+         2 pi AR / (AR + 2) = 2.866 per rad, the slope thin flat plates
+         measure at this Reynolds number (Ananda, Sukumar and Selig 2015;
+         NACA Report 1307 asks for the experimental wing-alone slope); the
+         slender-body hull carryover K_W(B) + K_B(W) = (1 + r/s)^2 with r
+         0.5634 (hull radius at the fin root) and s 0.9534 (root plus span)
+         is 2.531 (NACA 1307 eqs. 14 and 21, the values it recommends for all
+         combinations), so cla = 7.254 per rad on the exposed area: the hull
+         raises a fin's effectiveness, it does not lower it. cp at the
+         quarter chord (x = -1.6475 + 0.465 / 4) on each fin's span
+         centre.
          <upward> is the lift direction, normal to the fin's plane: y for the
          two vertical fins, z for the two horizontal ones. Drag is the
          plugin's linear-in-alpha form, cda sized to the induced drag
-         CL^2 / (pi AR e) at 10 deg with e = 0.9. A plate of this aspect
-         ratio does not stall like a wing: its lift keeps rising to 35-45
-         deg, so alpha_stall is 0.6 rad with a gentle fall past it, and the
-         post-stall drag slope puts cd near a flat plate's 1.2-1.3 at 90 deg.
+         CL^2 / (pi AR_j e) at 10 deg with e = 0.9. The carryover is a
+         small-angle result and a plate of this aspect ratio tops out near
+         cl 1.2-1.3 on its own area, about 3 with the hull's share, so the
+         linear range ends at alpha_stall 0.35 rad (cl 2.5) and falls at 1.9
+         per rad past it to a flat plate's ~0.2 at 90 deg, with the
+         post-stall drag slope putting cd near 1.2-1.3 there.
          All of it is an estimate with a stated basis, not a measurement.
          One thing the plugin does that the geometry does not: it applies
          nothing when the flow at cp comes from behind (forward . v <= 0),
@@ -41,11 +51,11 @@
       <upward>0 1 0</upward>
       <area>0.18135</area>
       <a0>0</a0>
-      <cla>1.856</cla>
-      <cda>0.25</cda>
+      <cla>7.254</cla>
+      <cda>1.94</cda>
       <cma>0</cma>
-      <alpha_stall>0.6</alpha_stall>
-      <cla_stall>-0.5</cla_stall>
+      <alpha_stall>0.35</alpha_stall>
+      <cla_stall>-1.92</cla_stall>
       <cda_stall>1.2</cda_stall>
       <cma_stall>0</cma_stall>
     </plugin>
@@ -58,11 +68,11 @@
       <upward>0 1 0</upward>
       <area>0.18135</area>
       <a0>0</a0>
-      <cla>1.856</cla>
-      <cda>0.25</cda>
+      <cla>7.254</cla>
+      <cda>1.94</cda>
       <cma>0</cma>
-      <alpha_stall>0.6</alpha_stall>
-      <cla_stall>-0.5</cla_stall>
+      <alpha_stall>0.35</alpha_stall>
+      <cla_stall>-1.92</cla_stall>
       <cda_stall>1.2</cda_stall>
       <cma_stall>0</cma_stall>
     </plugin>
@@ -75,11 +85,11 @@
       <upward>0 0 1</upward>
       <area>0.18135</area>
       <a0>0</a0>
-      <cla>1.856</cla>
-      <cda>0.25</cda>
+      <cla>7.254</cla>
+      <cda>1.94</cda>
       <cma>0</cma>
-      <alpha_stall>0.6</alpha_stall>
-      <cla_stall>-0.5</cla_stall>
+      <alpha_stall>0.35</alpha_stall>
+      <cla_stall>-1.92</cla_stall>
       <cda_stall>1.2</cda_stall>
       <cma_stall>0</cma_stall>
     </plugin>
@@ -92,11 +102,11 @@
       <upward>0 0 1</upward>
       <area>0.18135</area>
       <a0>0</a0>
-      <cla>1.856</cla>
-      <cda>0.25</cda>
+      <cla>7.254</cla>
+      <cda>1.94</cda>
       <cma>0</cma>
-      <alpha_stall>0.6</alpha_stall>
-      <cla_stall>-0.5</cla_stall>
+      <alpha_stall>0.35</alpha_stall>
+      <cla_stall>-1.92</cla_stall>
       <cda_stall>1.2</cda_stall>
       <cma_stall>0</cma_stall>
     </plugin>
