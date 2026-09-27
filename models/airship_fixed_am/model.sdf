@@ -387,7 +387,7 @@
     <!-- The four fins as lifting surfaces WITH their flaps: the same four
          lift-drag plugins as the _fin members, each naming its flap joint,
          with d(cl)/d(delta) = 2.361 per rad on the dorsal and side fins and
-         2.244 on the ventral: thin-airfoil flap effectiveness 0.661 at 30 %
+         2.244 on the ventral: thin-airfoil flap effectiveness 0.6607 at 30 %
          chord, times the ~0.8 viscous factor Caughey's "nearly 50 percent for
          a 25 percent chord flap" implies, times the wing-alone slope, times
          K_W(B) rather than the full angle-of-attack carryover, since a
@@ -408,16 +408,18 @@
          on the exposed area. cp at the quarter chord (x = -4.2857) on each
          fin's span centre. <upward> is the lift direction, normal to the fin's
          plane. Drag is the plugin's linear-in-alpha form, cda sized to the
-         induced drag CL^2 / (pi AR e) at 10 deg with e = 0.9. A fin stalls
-         where its own incidence, the body angle times the hull's upwash K_W(B)
-         (1.272 and 1.309), reaches the plates' CLmax of 0.7, the top of the
-         0.55-0.7 the same data measured: alpha_stall 0.1567 and 0.1649 rad of
-         body angle. Past it cl falls to 0 and cd rises to a broadside plate's
-         1.2 at 90 deg. The plugin stalls on the geometric incidence alone and
-         applies nothing when the flow at cp comes from behind
-         (forward . v <= 0), so these fins are absent in reverse flight and
-         pure lateral drift. The fins' own added mass is not modelled. All of
-         it is an estimate with a stated basis, not a measurement. -->
+         induced drag CL^2 / (pi AR e) with e = 0.9 at the lower of 10 deg and
+         the stall (the stall here), since past the stall the plugin uses
+         cda_stall. A fin stalls where its own incidence, the body angle times
+         the hull's upwash K_W(B) (1.272 and 1.309), reaches the plates' CLmax
+         of 0.7, the top of the 0.55-0.7 the same data measured: alpha_stall
+         0.1567 and 0.1649 rad of body angle. Past it cl falls to 0 and cd
+         rises to a broadside plate's 1.2 at 90 deg. The plugin stalls on the
+         geometric incidence alone and applies nothing when the flow at cp
+         comes from behind (forward . v <= 0), so these fins are absent in
+         reverse flight and pure lateral drift. The fins' own added mass is not
+         modelled. All of it is an estimate with a stated basis, not a
+         measurement. -->
     <plugin filename="gz-sim-lift-drag-system" name="gz::sim::systems::LiftDrag">
       <!-- fin_port -->
       <link_name>base_link</link_name>
@@ -428,11 +430,11 @@
       <area>1.824</area>
       <a0>0</a0>
       <cla>6.122</cla>
-      <cda>0.9133</cda>
+      <cda>0.8201</cda>
       <cma>0</cma>
       <alpha_stall>0.1567</alpha_stall>
       <cla_stall>-0.6785</cla_stall>
-      <cda_stall>0.7474</cda_stall>
+      <cda_stall>0.7577</cda_stall>
       <cma_stall>0</cma_stall>
       <control_joint_name>flap_port_joint</control_joint_name>
       <control_joint_rad_to_cl>-2.361</control_joint_rad_to_cl>
@@ -447,11 +449,11 @@
       <area>1.824</area>
       <a0>0</a0>
       <cla>6.122</cla>
-      <cda>0.9133</cda>
+      <cda>0.8201</cda>
       <cma>0</cma>
       <alpha_stall>0.1567</alpha_stall>
       <cla_stall>-0.6785</cla_stall>
-      <cda_stall>0.7474</cda_stall>
+      <cda_stall>0.7577</cda_stall>
       <cma_stall>0</cma_stall>
       <control_joint_name>flap_starboard_joint</control_joint_name>
       <control_joint_rad_to_cl>-2.361</control_joint_rad_to_cl>
@@ -466,11 +468,11 @@
       <area>1.824</area>
       <a0>0</a0>
       <cla>6.122</cla>
-      <cda>0.9133</cda>
+      <cda>0.8201</cda>
       <cma>0</cma>
       <alpha_stall>0.1567</alpha_stall>
       <cla_stall>-0.6785</cla_stall>
-      <cda_stall>0.7474</cda_stall>
+      <cda_stall>0.7577</cda_stall>
       <cma_stall>0</cma_stall>
       <control_joint_name>flap_top_joint</control_joint_name>
       <control_joint_rad_to_cl>2.361</control_joint_rad_to_cl>
@@ -485,11 +487,11 @@
       <area>1.536</area>
       <a0>0</a0>
       <cla>5.989</cla>
-      <cda>1.0379</cda>
+      <cda>0.9805</cda>
       <cma>0</cma>
       <alpha_stall>0.1649</alpha_stall>
       <cla_stall>-0.7024</cla_stall>
-      <cda_stall>0.7318</cda_stall>
+      <cda_stall>0.7385</cda_stall>
       <cma_stall>0</cma_stall>
       <control_joint_name>flap_bottom_joint</control_joint_name>
       <control_joint_rad_to_cl>2.244</control_joint_rad_to_cl>

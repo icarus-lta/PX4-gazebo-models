@@ -23,8 +23,8 @@
   (NACA Report 184): the dorsal and ventral fins restore at least 1.2 x the
   hull's potential-flow Munk moment at every speed, judged at zero sideslip on
   the attached-flow slope (Helmbold's) times the slender-body carryover of
-  NACA Report 1307: 45.8 against 38.0 N m per (m/s)^2 of u v, a ratio of 1.20.
-  The plugins carry the flat-plate slope 2 pi AR / (AR + 2) that Ananda,
+  NACA Report 1307: 45.76 against 38.03 N m per (m/s)^2 of u v, a ratio of
+  1.20. The plugins carry the flat-plate slope 2 pi AR / (AR + 2) that Ananda,
   Sukumar and Selig (2015) measured, a secant to about 10 deg that includes
   vortex lift (1.41 on it). The side fins make pitch stable at every speed
   (1.34 on the same basis) with the pendulum on top. A fin stalls where its

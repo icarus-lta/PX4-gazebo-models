@@ -20,7 +20,7 @@
   airship_base's 10.97 x 2.61 m spheroid, the frontal reference radius scales
   with the half-height to 1.21279 m (A = 4.6208 m^2); the lateral coefficient
   is crossflow drag, which scales with the planform, so it also takes the
-  fineness ratio (4.2 / 3.526, x 1.1913); the axial one takes Hoerner's
+  fineness ratio (4.2 / 3.5257, x 1.1913); the axial one takes Hoerner's
   fineness dependence of a streamlined body's frontal drag (x 1.0902); and the
   rotational scale is 0.5 * rho * S * L^3 * 0.003438 with S = 72.3849 m^2 and
   L = 10.9714 m, giving 201.3011 N m. Translational terms are then
@@ -47,9 +47,9 @@
   arm's rate term. The arm pair is what stops forward flight pitching the nose
   down. The rate terms are what stop the hull rolling itself apart: without
   both of them the roll moment per unit rate about the centre of mass is
-  -8.05 + 20.9 |v| N m/(rad/s), which stops damping above 0.38 m/s of sideslip
+  -8.05 + 20.94 |v| N m/(rad/s), which stops damping above 0.38 m/s of sideslip
   (on the earlier hull's coefficients that settled into a 6 deg limit cycle),
-  and without kPabsV alone it is -8.05 + 55.8 |v|, which stops damping above
+  and without kPabsV alone it is -8.05 + 55.76 |v|, which stops damping above
   0.14 m/s.
 
   One term of the shift has no home in this plugin's grammar, a squared rate

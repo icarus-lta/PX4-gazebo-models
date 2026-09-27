@@ -34,7 +34,7 @@
         <!-- Fluid added mass of the hull: Lamb's prolate-spheroid values for
              its fineness a/b = 4.2: k1 0.07607 axial, k2 0.86795 transverse,
              k' 0.62949 rotational, on the displaced mass rho V = 48.0200 kg of
-             the spheroid with semi-axes a = 5.4857 m and b = 1.3061 m (the
+             the spheroid with semi-axes a = 5.48570 m and b = 1.30612 m (the
              collision, which is also what is drawn) and its transverse inertia
              rho V (a^2 + b^2) / 5 = 305.3962 kg m^2. Written about the link
              origin, h = 2.05 m below the hull axis, with the offset terms that
